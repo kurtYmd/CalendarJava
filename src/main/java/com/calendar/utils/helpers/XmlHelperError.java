@@ -1,4 +1,4 @@
-package com.calendar.calendar;
+package com.calendar.utils.helpers;
 
 import java.io.Serial;
 

@@ -1,10 +1,15 @@
-package com.calendar.calendar;
+package com.calendar.app;
 
+import com.calendar.models.Contact;
+import com.calendar.models.Event;
+import com.calendar.utils.comparators.ContactByPhoneComparator;
+import com.calendar.utils.comparators.EventByDateComparator;
+import com.calendar.utils.helpers.XmlHelper;
+import com.calendar.utils.helpers.XmlHelperError;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

@@ -1,7 +1,7 @@
-package com.calendar.calendar.controller;
+package com.calendar.controller;
 
-import com.calendar.calendar.Contact;
-import com.calendar.calendar.Main;
+import com.calendar.models.Contact;
+import com.calendar.app.Main;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Button;

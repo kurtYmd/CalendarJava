@@ -1,5 +1,6 @@
-package com.calendar.calendar;
+package com.calendar.models;
 
+import com.calendar.app.Main;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;

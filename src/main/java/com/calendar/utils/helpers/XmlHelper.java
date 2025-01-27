@@ -1,4 +1,4 @@
-package com.calendar.calendar;
+package com.calendar.utils.helpers;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;

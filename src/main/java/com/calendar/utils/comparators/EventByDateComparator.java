@@ -1,4 +1,6 @@
-package com.calendar.calendar;
+package com.calendar.utils.comparators;
+
+import com.calendar.models.Event;
 
 import java.util.Comparator;
 

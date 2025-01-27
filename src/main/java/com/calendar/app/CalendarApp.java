@@ -1,5 +1,9 @@
-package com.calendar.calendar;
+package com.calendar.app;
 
+import com.calendar.services.DataBase;
+import com.calendar.models.EventContact;
+import com.calendar.models.Contact;
+import com.calendar.models.Event;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.table.TableUtils;

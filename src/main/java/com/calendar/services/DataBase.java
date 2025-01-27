@@ -1,4 +1,4 @@
-package com.calendar.calendar;
+package com.calendar.services;
 
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 

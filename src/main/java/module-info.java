@@ -13,6 +13,6 @@ module com.calendar.calendar {
     requires ormlite.jdbc;
     requires java.sql;
 
-    opens com.calendar.calendar to javafx.fxml, ormlite.jdbc;
-    exports com.calendar.calendar;
+    opens com to javafx.fxml, ormlite.jdbc;
+    exports com;
 }

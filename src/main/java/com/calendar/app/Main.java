@@ -36,7 +36,7 @@ public class Main extends Application {
 
 	@Override
 	public void start(Stage stage) throws IOException {
-		FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/ com/calendar/view/calendar.fxml"));
+		FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/com/calendar/view/calendar.fxml"));
 		Scene scene = new Scene(fxmlLoader.load());
 		stage.setTitle("Hello!");
 		stage.setScene(scene);
@@ -56,163 +56,70 @@ public class Main extends Application {
 	public static void main(String[] args) {
 
 		launch(args);
-		CalendarApp app = new CalendarApp();
-
-		try {
-			//readEventsXML();
-			readContactsXML();
-			Map<String, ArrayList<String>> eventContact = Main.readContactsEvents(true);
-			Map<String, ArrayList<String>> contactEvent = Main.readContactsEvents(false);
-			linkContactsAndEvents(contactEvent, eventContact);
-		} catch (XmlHelperError e) {
-			e.printStackTrace();
-			return;
-		};
-
-		// Edit
-		showEvents();
-		showContatcs();
-
-		System.out.println();
-
-		editEvent(0);
-		editContact(0);
-
-		System.out.println();
-
-		showEvents();
-		showContatcs();
-
-		System.out.println();
-
-		// Sort
-		sortContacts();
-		sortEvents();
-
-		showEvents();
-		showContatcs();
-
-		System.out.println();
-
-		// Sort by comparator
-		sortContactsByComporator(new ContactByPhoneComparator());
-		sortEventsByComporator(new EventByDateComparator());
-
-		showEvents();
-		showContatcs();
-
-		writeContactsToXML();
-		writeEventsToXML();
-
+//		CalendarApp app = new CalendarApp();
+//
+//		try {
+//			//readEventsXML();
+//			readContactsXML();
+//			Map<String, ArrayList<String>> eventContact = Main.readContactsEvents(true);
+//			Map<String, ArrayList<String>> contactEvent = Main.readContactsEvents(false);
+//			linkContactsAndEvents(contactEvent, eventContact);
+//		} catch (XmlHelperError e) {
+//			e.printStackTrace();
+//			return;
+//		};
+//
+//		// Edit
+//		showEvents();
+//		showContatcs();
+//
+//		System.out.println();
+//
+//		editEvent(0);
+////		editContact(0);
+//
+//		System.out.println();
+//
+//		showEvents();
+//		showContatcs();
+//
+//		System.out.println();
+//
+//		// Sort
+//		sortContacts();
+//		sortEvents();
+//
+//		showEvents();
+//		showContatcs();
+//
+//		System.out.println();
+//
+//		// Sort by comparator
+//		sortContactsByComporator(new ContactByPhoneComparator());
+//		sortEventsByComporator(new EventByDateComparator());
+//
+//		showEvents();
+//		showContatcs();
+//
+//		writeEventsToXML();
 	}
 
-	static void writeContactsToXML() {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder;
-
-        try {
-        	builder = factory.newDocumentBuilder();
-        } catch(ParserConfigurationException e) {
-        	e.printStackTrace();
-        	return;
-        }
-
-        Document document = builder.newDocument();
-		Document documentWithEvents = builder.newDocument();
-
-		Element rootWithEvents = documentWithEvents.createElement("contactsEvents");
-		documentWithEvents.appendChild(rootWithEvents);
-
-        Element root = document.createElement("contacts");
-        document.appendChild(root);
-
-        Main.contacts.forEach((contact) -> {
-        	Element contactDoc = document.createElement("contact");
-        	contactDoc.setAttribute("id", contact.getId());
-        	contactDoc.setAttribute("name", contact.getName());
-        	contactDoc.setAttribute("phone", contact.getPhoneString());
-			contact.getEvents().forEach((event) -> {
-        		Element contactWithEventDoc = documentWithEvents.createElement("contactEvent");
-				contactWithEventDoc.setAttribute("contactId", contact.getId());
-				contactWithEventDoc.setAttribute("eventId", event.getId());
-				rootWithEvents.appendChild(contactWithEventDoc);
-			});
-        	root.appendChild(contactDoc);
-        });
-
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer;
-		try {
-			transformer = transformerFactory.newTransformer();
-		} catch (TransformerConfigurationException e) {
-			e.printStackTrace();
-			return;
-		}
-        DOMSource source = new DOMSource(document);
-		DOMSource sourceWithEvent = new DOMSource(documentWithEvents);
-
-        StreamResult result = new StreamResult("/Users/kurtymd/eclipse-workspace/task2/src/task2/static/contacts.xml");
-		StreamResult resultWithEvent = new StreamResult("/Users/kurtymd/eclipse-workspace/task2/src/task2/static/contactsEvents.xml");
-        try {
-			transformer.transform(source, result);
-			transformer.transform(sourceWithEvent, resultWithEvent);
-		} catch (TransformerException e) {
-			e.printStackTrace();
-		}
-	}
-
-	static Map<String, ArrayList<String>> readContactsEvents(Boolean reverse) throws XmlHelperError {
-		Map<String, ArrayList<String>> contactsEvents = new Hashtable<String, ArrayList<String>>();
-
-		Document contactsEventsDoc = XmlHelper.openXmlAsDocument(Main.contactsEventsPath);
-
-		NodeList nodeList = contactsEventsDoc.getElementsByTagName("contactEvent");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			Element node = (Element)nodeList.item(i);
-
-			String eventId = node.getAttribute("eventId");
-			String contactId = node.getAttribute("contactId");
-
-			if (reverse) {
-				ArrayList<String> elems = contactsEvents.get(eventId);
-
-				if (elems == null) {
-					elems = new ArrayList<>();
-					contactsEvents.put(eventId, elems);
-				}
-				if(!elems.contains(contactId)) elems.add(contactId);
-
-			} else {
-				ArrayList<String> elems = contactsEvents.get(contactId);
-
-				if (elems == null) {
-					elems = new ArrayList<>();
-					contactsEvents.put(contactId, elems);
-				}
-
-				if(!elems.contains(eventId)) elems.add(eventId);
-			}
-    	}
-
-		return contactsEvents;
-	}
-
-	static void readContactsXML() throws XmlHelperError {
-
-		Document document = XmlHelper.openXmlAsDocument(Main.contactsPath);
-
-		NodeList nodeList = document.getElementsByTagName("contact");
-		Main.contacts.clear();
-		for (int i = 0; i < nodeList.getLength(); i++) {
-            Element node = (Element)nodeList.item(i);
-            String id = node.getAttribute("id");
-            String name = node.getAttribute("name");
-            String phoneTxt = node.getAttribute("phone");
-			long phone = Long.parseLong(phoneTxt);
-            Contact contact = new Contact(id, name, phone);
-            Main.contacts.add(contact);
-		}
-	}
+//	static void readContactsXML() throws XmlHelperError {
+//
+//		Document document = XmlHelper.openXmlAsDocument(Main.contactsPath);
+//
+//		NodeList nodeList = document.getElementsByTagName("contact");
+//		Main.contacts.clear();
+//		for (int i = 0; i < nodeList.getLength(); i++) {
+//            Element node = (Element)nodeList.item(i);
+//            String id = node.getAttribute("id");
+//            String name = node.getAttribute("name");
+//            String phoneTxt = node.getAttribute("phone");
+//			long phone = Long.parseLong(phoneTxt);
+//            Contact contact = new Contact(id, name, phone);
+//            Main.contacts.add(contact);
+//		}
+//	}
 
 	static void sortContacts() {
 		Main.contacts.sort(null);
@@ -222,11 +129,11 @@ public class Main extends Application {
 		Collections.sort(Main.contacts, c);
 	}
 
-	static void showContatcs() {
-
-		System.out.println(Main.contacts.toString());
-
-	}
+//	static void showContatcs() {
+//
+//		System.out.println(Main.contacts.toString());
+//
+//	}
 
 	static void writeEventsToXML() {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -298,71 +205,65 @@ public class Main extends Application {
         return null;
     }
 
-	static void addEvent() {
+//	static void addEvent() {
+//
+//		String name = JOptionPane.showInputDialog("Enter event name: ");
+//		String dateTxt = JOptionPane.showInputDialog("Enter the date: yyyy-MM-dd HH:mm");
+//
+//		Date date;
+//
+//		try {
+//			date = Main.dateFormatter.parse(dateTxt);
+//		} catch (ParseException e) {
+//			System.out.println("Incorrect date format");
+//			return;
+//		}
+//
+//		Event event = new Event(name, date);
+//
+//		Main.events.add(event);
+//	}
+//
+//	static void editEvent(int index) {
+//		Event event;
+//		try {
+//			event = Main.events.get(index);
+//		} catch (IndexOutOfBoundsException e) {
+//			System.out.println("Event is undefined");
+//			return;
+//		}
+//
+//		event.setName(name);
+//		event.setDate(date);
+//	}
 
-		String name = JOptionPane.showInputDialog("Enter event name: ");
-		String dateTxt = JOptionPane.showInputDialog("Enter the date: yyyy-MM-dd HH:mm");
-
-		Date date;
-
-		try {
-			date = Main.dateFormatter.parse(dateTxt);
-		} catch (ParseException e) {
-			System.out.println("Incorrect date format");
-			return;
-		}
-
-		Event event = new Event(name, date);
-
-		Main.events.add(event);
-	}
-
-	static void editEvent(int index) {
-		Event event;
-		try {
-			event = Main.events.get(index);
-		} catch (IndexOutOfBoundsException e) {
-			System.out.println("Event is undefined");
-			return;
-		}
-
-
-		Random rand = new Random();
-		String name = "Name_" + rand.nextInt(1000);
-		Date date = new Date(124, 1, rand.nextInt(29)+1);
-
-		event.setName(name);
-		event.setDate(date);
-
-	}
-
-	static void sortEvents() {
-		Main.events.sort(null);
-	}
-
-	static void sortEventsByComporator(Comparator c) {
-		Collections.sort(Main.events, c);
-	}
-
-	public static void showEvents() {
-
-		System.out.println(Main.events.toString());
-
-	}
-
-	private static void linkContactsAndEvents(Map<String, ArrayList<String>> contactToEvents,
-                                               Map<String, ArrayList<String>> eventToContacts) {
-        for (Contact contact : contacts) {
-            ArrayList<String> eventIds = contactToEvents.get(contact.getId());
-            if (eventIds != null) {
-                for (String eventId : eventIds) {
-                    Event event = findEventById(eventId);
-                    if (event != null) {
-                        contact.addEvent(event);
-                        event.addContact(contact);
-                    }
-                }
-            }
-        }
-    }
+//	static void sortEvents() {
+//		Main.events.sort(null);
+//	}
+//
+//	static void sortEventsByComporator(Comparator c) {
+//		Collections.sort(Main.events, c);
+//	}
+//
+//	public static void showEvents() {
+//
+//		System.out.println(Main.events.toString());
+//
+//	}
+//
+//	private static void linkContactsAndEvents(Map<String, ArrayList<String>> contactToEvents,
+//                                               Map<String, ArrayList<String>> eventToContacts) {
+//        for (Contact contact : contacts) {
+//            ArrayList<String> eventIds = contactToEvents.get(contact.getId());
+//            if (eventIds != null) {
+//                for (String eventId : eventIds) {
+//                    Event event = findEventById(eventId);
+//                    if (event != null) {
+//                        contact.addEvent(event);
+//                        event.addContact(contact);
+//                    }
+//                }
+//            }
+//        }
+//    }
 }

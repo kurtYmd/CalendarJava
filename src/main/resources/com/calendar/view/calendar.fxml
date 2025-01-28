@@ -26,7 +26,9 @@
           <Menu mnemonicParsing="false" text="File">
             <items>
               <MenuItem mnemonicParsing="false" text="Load XML" />
-                  <MenuItem mnemonicParsing="false" text="Save XML" />
+                  <MenuItem mnemonicParsing="false" text="Save XML">
+<!--                      <onAction>writeContactsToXML</onAction>-->
+                  </MenuItem>
                   <RadioMenuItem mnemonicParsing="false" text="Unspecified Action" />
                   <MenuItem mnemonicParsing="false" text="Exit" />
             </items>

@@ -1,9 +1,13 @@
 package com.calendar.controllers;
 
+import com.calendar.app.Main;
+import com.calendar.models.Contact;
 import com.calendar.models.Event;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -12,8 +16,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
 import java.net.URL;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -94,6 +98,8 @@ public class CalendarController implements Initializable {
                         double textTranslationY = -(rectangleHeight / 2) * 0.75;
                         date.setTranslateY(textTranslationY);
                         stackPane.getChildren().add(date);
+                        rectangle.setPickOnBounds(false);
+                        rectangle.setOnMouseClicked(e -> createUpdateEvent(currentDate));
 
                         List<Event> events = calendarEventMap.get(currentDate);
                         if (events != null) {
@@ -108,6 +114,101 @@ public class CalendarController implements Initializable {
             }
         }
     }
+
+    private void createUpdateEvent(int selectedDate) {
+        LocalDate clickedDate = LocalDate.from(dateFocus.withDayOfMonth(selectedDate));
+        System.out.println("Clicked date: " + clickedDate);
+
+        Dialog<Event> dialog = new Dialog<>();
+        dialog.setTitle("Create or Update Event");
+        dialog.setHeaderText("Create or update event for: " + clickedDate);
+
+        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        TextField eventNameField = new TextField();
+        eventNameField.setPromptText("Enter event name");
+
+        TextField eventTimeField = new TextField();
+        eventTimeField.setPromptText("Enter event time (HH:mm)");
+
+        VBox contactsBox = new VBox();
+        contactsBox.setSpacing(5);
+        List<CheckBox> contactCheckboxes = new ArrayList<>();
+        for (Contact contact : Main.contacts) {
+            CheckBox checkBox = new CheckBox(contact.getName());
+            contactCheckboxes.add(checkBox);
+            contactsBox.getChildren().add(checkBox);
+        }
+
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(10));
+        content.getChildren().addAll(
+                new Label("Event Name:"),
+                eventNameField,
+                new Label("Event Time:"),
+                eventTimeField,
+                new Label("Select Contacts:"),
+                contactsBox
+        );
+
+        dialog.getDialogPane().setContent(content);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                String timeInput = eventTimeField.getText();
+                LocalTime eventTime;
+                try {
+                    eventTime = LocalTime.parse(timeInput);
+                } catch (DateTimeParseException e) {
+                    showAlert("Invalid Time", "Please enter a valid time in HH:mm format.");
+                    return null;
+                }
+
+                List<Contact> selectedContacts = new ArrayList<>();
+                for (int i = 0; i < contactCheckboxes.size(); i++) {
+                    if (contactCheckboxes.get(i).isSelected()) {
+                        selectedContacts.add(Main.contacts.get(i));
+                    }
+                }
+
+                if (selectedContacts.isEmpty()) {
+                    showAlert("No Contacts Selected", "Please select at least one contact.");
+                    return null;
+                }
+
+                Date in = new Date();
+                LocalDateTime ldt = LocalDateTime.ofInstant(in.toInstant(), ZoneId.systemDefault());
+                Date out = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+                Event newEvent = new Event(eventNameField.getText(), out);
+                for (Contact contact: selectedContacts) {
+                    newEvent.addContact(contact);
+                }
+                System.out.println("Created event: " + newEvent);
+
+                return newEvent;
+            }
+            return null;
+        });
+
+        Optional<Event> result = dialog.showAndWait();
+        result.ifPresent(event -> {
+            saveEvent(event);
+        });
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void saveEvent(Event event) {
+        System.out.println("Event saved: " + event);
+    }
+
 
     private void createCalendarEvent(List<Event> events, double rectangleHeight, double rectangleWidth, StackPane stackPane) {
         VBox eventBox = new VBox();
@@ -148,10 +249,19 @@ public class CalendarController implements Initializable {
     }
 
     private Map<Integer, List<Event>> getCalendarEventsMonth(ZonedDateTime dateFocus) {
-        List<Event> events = new ArrayList<>();
+        List<Event> events = Main.events; // Assuming Main.events holds all events
         int year = dateFocus.getYear();
-        int month = dateFocus.getMonth().getValue();
+        int month = dateFocus.getMonthValue();
 
-        return createCalendarMap(events);
+        // Filter events for the specified year and month
+        List<Event> filteredEvents = events.stream()
+                .filter(event -> {
+                    ZonedDateTime eventDate = event.getDate().toInstant().atZone(ZoneId.systemDefault());
+                    return eventDate.getYear() == year && eventDate.getMonthValue() == month;
+                })
+                .collect(Collectors.toList());
+
+        // Map events by day of the month
+        return createCalendarMap(filteredEvents);
     }
 }

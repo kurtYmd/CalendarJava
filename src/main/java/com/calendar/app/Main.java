@@ -36,7 +36,7 @@ public class Main extends Application {
 
 	@Override
 	public void start(Stage stage) throws IOException {
-		FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/com/calendar/view/calendar.fxml"));
+		FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/ com/calendar/view/calendar.fxml"));
 		Scene scene = new Scene(fxmlLoader.load());
 		stage.setTitle("Hello!");
 		stage.setScene(scene);
@@ -214,38 +214,6 @@ public class Main extends Application {
 		}
 	}
 
-	static void addContact() {
-		 String name = JOptionPane.showInputDialog("Enter name: ");
-		 String phoneTxt = JOptionPane.showInputDialog("Enter phone number: ");
-
-		 long phone = Long.parseLong(phoneTxt);
-
-		Random rand = new Random();
-
-//		String name = "Contact_" + rand.nextInt(1000);
-//		Long phone = (long) (100_000_000 + rand.nextInt(900_000_000));
-
-		Contact contact = new Contact(name, phone);
-
-		Main.contacts.add(contact);
-	}
-
-	static void editContact(int index) {
-		Random rand = new Random();
-		Long phone = (long) (100_000_000 + rand.nextInt(900_000_000));
-
-		Contact contact;
-		try {
-			contact = Main.contacts.get(index);
-		} catch (IndexOutOfBoundsException e) {
-			System.out.println("Contact not found");
-			return;
-		}
-
-
-		contact.setPhone(phone);
-	}
-
 	static void sortContacts() {
 		Main.contacts.sort(null);
 	}
@@ -343,10 +311,6 @@ public class Main extends Application {
 			System.out.println("Incorrect date format");
 			return;
 		}
-
-//		Random rand = new Random();
-//		String name = "Event_" + rand.nextInt(1000);
-//		Date date = new Date(124, 1, rand.nextInt(29)+1);
 
 		Event event = new Event(name, date);
 

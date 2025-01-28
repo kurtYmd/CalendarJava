@@ -89,5 +89,4 @@ public class Event implements Comparable<Event> {
             return this.date.compareTo(a.date);
         }
     }
-	
 }

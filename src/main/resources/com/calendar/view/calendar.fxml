@@ -58,7 +58,7 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <TableView layoutX="14.0" layoutY="14.0" prefHeight="276.0" prefWidth="567.0">
+                        <TableView fx:id="contactsTable" layoutX="14.0" layoutY="14.0" prefHeight="276.0" prefWidth="567.0">
                            <columns>
                               <TableColumn prefWidth="145.06951141357422" text="Name" />
                               <TableColumn prefWidth="168.58338928222656" text="Phone" />
@@ -67,7 +67,7 @@
                         </TableView>
                         <ButtonBar layoutX="231.0" layoutY="290.0" prefHeight="40.0" prefWidth="350.0">
                            <buttons>
-                              <Button mnemonicParsing="false" text="Add Contact" onAction="#addContactAction">
+                              <Button fx:id="addContactButton" mnemonicParsing="false" text="Add Contact" onAction="#addContactAction">
                                  <cursor>
                                     <Cursor fx:constant="HAND" />
                                  </cursor>

@@ -1,22 +1,17 @@
 package com.calendar.controllers;
 
 import com.calendar.models.CalendarActivity;
+import com.calendar.models.Event;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -67,7 +62,7 @@ public class CalendarController implements Initializable {
         double spacingV = calendar.getVgap();
 
         //List of activities for a given month
-        Map<Integer, List<CalendarActivity>> calendarActivityMap = getCalendarActivitiesMonth(dateFocus);
+        Map<Integer, List<Event>> calendarActivityMap = getCalendarActivitiesMonth(dateFocus);
 
         int monthMaxDate = dateFocus.getMonth().maxLength();
         //Check for leap year
@@ -139,10 +134,10 @@ public class CalendarController implements Initializable {
         stackPane.getChildren().add(calendarActivityBox);
     }
 
-    private Map<Integer, List<CalendarActivity>> createCalendarMap(List<CalendarActivity> calendarActivities) {
-        Map<Integer, List<CalendarActivity>> calendarActivityMap = new HashMap<>();
+    private Map<Integer, List<Event>> createCalendarMap(List<Event> calendarActivities) {
+        Map<Integer, List<Event>> calendarActivityMap = new HashMap<>();
 
-        for (CalendarActivity activity: calendarActivities) {
+        for (Event activity: calendarActivities) {
             int activityDate = activity.getDate().getDayOfMonth();
             if(!calendarActivityMap.containsKey(activityDate)){
                 calendarActivityMap.put(activityDate, List.of(activity));
@@ -157,7 +152,7 @@ public class CalendarController implements Initializable {
         return  calendarActivityMap;
     }
 
-    private Map<Integer, List<CalendarActivity>> getCalendarActivitiesMonth(ZonedDateTime dateFocus) {
+    private Map<Integer, List<Event>> getCalendarActivitiesMonth(ZonedDateTime dateFocus) {
         List<CalendarActivity> calendarActivities = new ArrayList<>();
         int year = dateFocus.getYear();
         int month = dateFocus.getMonth().getValue();

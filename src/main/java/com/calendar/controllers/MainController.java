@@ -1,4 +1,4 @@
-package com.calendar.controller;
+package com.calendar.controllers;
 
 import com.calendar.models.Contact;
 import com.calendar.app.Main;
@@ -25,7 +25,7 @@ public class MainController {
 
         Contact contact = new Contact(name, phone);
 
-        Main.contacts.add(contact);
+//        Main.contacts.add(contact);
 
         refreshContactsTable();
     }

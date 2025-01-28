@@ -14,5 +14,7 @@ module com.calendar.calendar {
     requires java.sql;
     requires java.desktop;
 
-    opens com.calendar to javafx.fxml, ormlite.jdbc;
+    exports com.calendar.app to javafx.graphics;
+
+    opens com.calendar.app to javafx.fxml, ormlite.jdbc;
 }

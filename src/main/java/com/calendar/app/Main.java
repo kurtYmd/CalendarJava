@@ -25,6 +25,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,34 +33,28 @@ import java.util.*;
 
 
 public class Main extends Application {
-	
+
 	@Override
-	public void start(Stage primaryStage) {
-		CalendarApp app = new CalendarApp();
-		try {
-			FXMLLoader loader  = new FXMLLoader(getClass().getResource("view/calendar.fxml"));
-			Parent root = loader.load();
-			Scene scene = new Scene(root,600,400);
-			primaryStage.setTitle("Calendar");
-			primaryStage.setScene(scene);
-			primaryStage.show();
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
+	public void start(Stage stage) throws IOException {
+		FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/com/calendar/view/calendar.fxml"));
+		Scene scene = new Scene(fxmlLoader.load());
+		stage.setTitle("Hello!");
+		stage.setScene(scene);
+		stage.show();
 	}
 	
 	public static ArrayList<Contact> contacts = new ArrayList<Contact>();
 	public static ArrayList<Event> events = new ArrayList<Event>();
-	
+
 	public static String dateFormat = "yyyy-MM-dd HH:mm";
 	public static DateFormat dateFormatter = new SimpleDateFormat(Main.dateFormat);
-	
+
 	public static String contactsPath = "/Users/kurtymd/eclipse-workspace/task2/src/task2/static/contacts.xml";
 	public static String eventsPath = "/Users/kurtymd/eclipse-workspace/task2/src/task2/static/events.xml";
 	public static String contactsEventsPath = "/Users/kurtymd/eclipse-workspace/task2/src/task2/static/contactsEvents.xml";
 
 	public static void main(String[] args) {
-		
+
 		launch(args);
 		CalendarApp app = new CalendarApp();
 
@@ -77,9 +72,9 @@ public class Main extends Application {
 		// Edit
 		showEvents();
 		showContatcs();
-		
+
 		System.out.println();
-		
+
 		editEvent(0);
 		editContact(0);
 
@@ -87,50 +82,50 @@ public class Main extends Application {
 
 		showEvents();
 		showContatcs();
-		
+
 		System.out.println();
-		
+
 		// Sort
 		sortContacts();
 		sortEvents();
 
 		showEvents();
 		showContatcs();
-		
+
 		System.out.println();
-		
-		// Sort by comparator 
+
+		// Sort by comparator
 		sortContactsByComporator(new ContactByPhoneComparator());
 		sortEventsByComporator(new EventByDateComparator());
-	
+
 		showEvents();
 		showContatcs();
 
 		writeContactsToXML();
 		writeEventsToXML();
-		
+
 	}
 
 	static void writeContactsToXML() {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
-        
+
         try {
         	builder = factory.newDocumentBuilder();
         } catch(ParserConfigurationException e) {
         	e.printStackTrace();
         	return;
         }
-        
+
         Document document = builder.newDocument();
 		Document documentWithEvents = builder.newDocument();
-        
+
 		Element rootWithEvents = documentWithEvents.createElement("contactsEvents");
 		documentWithEvents.appendChild(rootWithEvents);
 
         Element root = document.createElement("contacts");
         document.appendChild(root);
-        
+
         Main.contacts.forEach((contact) -> {
         	Element contactDoc = document.createElement("contact");
         	contactDoc.setAttribute("id", contact.getId());
@@ -144,7 +139,7 @@ public class Main extends Application {
 			});
         	root.appendChild(contactDoc);
         });
-        
+
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transformer;
 		try {
@@ -165,12 +160,12 @@ public class Main extends Application {
 			e.printStackTrace();
 		}
 	}
-	
+
 	static Map<String, ArrayList<String>> readContactsEvents(Boolean reverse) throws XmlHelperError {
 		Map<String, ArrayList<String>> contactsEvents = new Hashtable<String, ArrayList<String>>();
 
 		Document contactsEventsDoc = XmlHelper.openXmlAsDocument(Main.contactsEventsPath);
-		
+
 		NodeList nodeList = contactsEventsDoc.getElementsByTagName("contactEvent");
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Element node = (Element)nodeList.item(i);
@@ -186,7 +181,7 @@ public class Main extends Application {
 					contactsEvents.put(eventId, elems);
 				}
 				if(!elems.contains(contactId)) elems.add(contactId);
-				
+
 			} else {
 				ArrayList<String> elems = contactsEvents.get(contactId);
 
@@ -205,7 +200,7 @@ public class Main extends Application {
 	static void readContactsXML() throws XmlHelperError {
 
 		Document document = XmlHelper.openXmlAsDocument(Main.contactsPath);
-		
+
 		NodeList nodeList = document.getElementsByTagName("contact");
 		Main.contacts.clear();
 		for (int i = 0; i < nodeList.getLength(); i++) {
@@ -218,23 +213,23 @@ public class Main extends Application {
             Main.contacts.add(contact);
 		}
 	}
-	
+
 	static void addContact() {
 		 String name = JOptionPane.showInputDialog("Enter name: ");
 		 String phoneTxt = JOptionPane.showInputDialog("Enter phone number: ");
-		
+
 		 long phone = Long.parseLong(phoneTxt);
-		
+
 		Random rand = new Random();
-		
+
 //		String name = "Contact_" + rand.nextInt(1000);
 //		Long phone = (long) (100_000_000 + rand.nextInt(900_000_000));
-		
+
 		Contact contact = new Contact(name, phone);
-		
-		Main.contacts.add(contact);	
+
+		Main.contacts.add(contact);
 	}
-	
+
 	static void editContact(int index) {
 		Random rand = new Random();
 		Long phone = (long) (100_000_000 + rand.nextInt(900_000_000));
@@ -246,25 +241,25 @@ public class Main extends Application {
 			System.out.println("Contact not found");
 			return;
 		}
-		
-		
+
+
 		contact.setPhone(phone);
 	}
-	
+
 	static void sortContacts() {
 		Main.contacts.sort(null);
 	}
-	
+
 	static void sortContactsByComporator(Comparator c) {
 		Collections.sort(Main.contacts, c);
 	}
-	
+
 	static void showContatcs() {
-		
+
 		System.out.println(Main.contacts.toString());
-		
+
 	}
-	
+
 	static void writeEventsToXML() {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
@@ -305,7 +300,7 @@ public class Main extends Application {
 			e.printStackTrace();
 		}
 	}
-	
+
 	static void readEventsXML() throws Exception {
         Document document = XmlHelper.openXmlAsDocument(Main.contactsPath);
 
@@ -336,62 +331,62 @@ public class Main extends Application {
     }
 
 	static void addEvent() {
-		
+
 		String name = JOptionPane.showInputDialog("Enter event name: ");
 		String dateTxt = JOptionPane.showInputDialog("Enter the date: yyyy-MM-dd HH:mm");
-		
+
 		Date date;
-		
+
 		try {
 			date = Main.dateFormatter.parse(dateTxt);
 		} catch (ParseException e) {
 			System.out.println("Incorrect date format");
 			return;
 		}
-		
+
 //		Random rand = new Random();
 //		String name = "Event_" + rand.nextInt(1000);
 //		Date date = new Date(124, 1, rand.nextInt(29)+1);
-		
+
 		Event event = new Event(name, date);
 
 		Main.events.add(event);
 	}
-	
+
 	static void editEvent(int index) {
 		Event event;
 		try {
-			event = Main.events.get(index);	
+			event = Main.events.get(index);
 		} catch (IndexOutOfBoundsException e) {
 			System.out.println("Event is undefined");
 			return;
 		}
-		
-		
+
+
 		Random rand = new Random();
 		String name = "Name_" + rand.nextInt(1000);
 		Date date = new Date(124, 1, rand.nextInt(29)+1);
-		
+
 		event.setName(name);
 		event.setDate(date);
-		
+
 	}
-	
+
 	static void sortEvents() {
 		Main.events.sort(null);
 	}
-	
+
 	static void sortEventsByComporator(Comparator c) {
 		Collections.sort(Main.events, c);
 	}
-	
+
 	public static void showEvents() {
-		
+
 		System.out.println(Main.events.toString());
-		
+
 	}
-	
-	private static void linkContactsAndEvents(Map<String, ArrayList<String>> contactToEvents, 
+
+	private static void linkContactsAndEvents(Map<String, ArrayList<String>> contactToEvents,
                                                Map<String, ArrayList<String>> eventToContacts) {
         for (Contact contact : contacts) {
             ArrayList<String> eventIds = contactToEvents.get(contact.getId());

@@ -36,7 +36,7 @@ public class Contact implements Comparable<Contact> {
 		this.name = name;
 	}
 	
-	void setPhone(long phone) {
+	public void setPhone(long phone) {
 		this.phone = phone;
 	}
 	
@@ -44,7 +44,7 @@ public class Contact implements Comparable<Contact> {
 		this.events = events;
 	}
 	
-	void addEvent(Event event) {
+	public void addEvent(Event event) {
 		this.events.add(event);
 	}
 	

@@ -15,6 +15,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -219,15 +220,15 @@ public class Main extends Application {
 	}
 	
 	static void addContact() {
-		// String name = JOptionPane.showInputDialog("Enter name: ");
-		// String phoneTxt = JOptionPane.showInputDialog("Enter phone number: ");
+		 String name = JOptionPane.showInputDialog("Enter name: ");
+		 String phoneTxt = JOptionPane.showInputDialog("Enter phone number: ");
 		
-		// long phone = Long.parseLong(phoneTxt);
+		 long phone = Long.parseLong(phoneTxt);
 		
 		Random rand = new Random();
 		
-		String name = "Contact_" + rand.nextInt(1000);
-		Long phone = (long) (100_000_000 + rand.nextInt(900_000_000));
+//		String name = "Contact_" + rand.nextInt(1000);
+//		Long phone = (long) (100_000_000 + rand.nextInt(900_000_000));
 		
 		Contact contact = new Contact(name, phone);
 		
@@ -336,21 +337,21 @@ public class Main extends Application {
 
 	static void addEvent() {
 		
-		//String name = JOptionPane.showInputDialog("Enter event name: ");
-		//String dateTxt = JOptionPane.showInputDialog("Enter the date: yyyy-MM-dd HH:mm");
+		String name = JOptionPane.showInputDialog("Enter event name: ");
+		String dateTxt = JOptionPane.showInputDialog("Enter the date: yyyy-MM-dd HH:mm");
 		
-		//Date date;
+		Date date;
 		
-		//try {
-		//	date = Main.dateFormatter.parse(dateTxt);
-		//} catch (ParseException e) {
-		//	System.out.println("Incorrect date format");
-		//	return;
-		//}
+		try {
+			date = Main.dateFormatter.parse(dateTxt);
+		} catch (ParseException e) {
+			System.out.println("Incorrect date format");
+			return;
+		}
 		
-		Random rand = new Random();
-		String name = "Event_" + rand.nextInt(1000);
-		Date date = new Date(124, 1, rand.nextInt(29)+1);
+//		Random rand = new Random();
+//		String name = "Event_" + rand.nextInt(1000);
+//		Date date = new Date(124, 1, rand.nextInt(29)+1);
 		
 		Event event = new Event(name, date);
 
@@ -405,6 +406,4 @@ public class Main extends Application {
             }
         }
     }
-
-	
 }

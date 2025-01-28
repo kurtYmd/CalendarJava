@@ -16,7 +16,7 @@ public class DataBase {
         return databaseUrl;
     }
 
-    JdbcConnectionSource getConn() {
+    public JdbcConnectionSource getConn() {
         return connectionSource;
     }
 

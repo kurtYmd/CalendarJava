@@ -49,39 +49,6 @@
    <center>
       <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
-          <Tab text="Events">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <TableView layoutX="14.0" layoutY="14.0" prefHeight="276.0" prefWidth="567.0">
-                          <columns>
-                              <TableColumn prefWidth="178.1022720336914" text="Date" />
-                            <TableColumn prefWidth="387.89774322509766" text="Name" />
-                          </columns>
-                        </TableView>
-                        <ButtonBar layoutX="259.0" layoutY="290.0" prefHeight="40.0" prefWidth="322.0" AnchorPane.leftAnchor="259.0" AnchorPane.rightAnchor="19.0">
-                           <buttons>
-                              <Button mnemonicParsing="false" text="Add Event">
-                                 <cursor>
-                                    <Cursor fx:constant="HAND" />
-                                 </cursor>
-                              </Button>
-                              <Button mnemonicParsing="false" text="Edit Event">
-                                 <cursor>
-                                    <Cursor fx:constant="HAND" />
-                                 </cursor>
-                              </Button>
-                            <Button minWidth="0.0" mnemonicParsing="false" prefHeight="26.0" text="Delete Event">
-                                 <cursor>
-                                    <Cursor fx:constant="HAND" />
-                                 </cursor>
-                              </Button>
-                           </buttons>
-                        </ButtonBar>
-                     </children>
-                  </AnchorPane>
-            </content>
-          </Tab>
           <Tab text="Contacts">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">

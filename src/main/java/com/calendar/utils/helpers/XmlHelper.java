@@ -19,7 +19,7 @@ import java.io.IOException;
 
 public class XmlHelper {
 
-    static Document openXmlAsDocument(String filePath) throws XmlHelperError {
+    public static Document openXmlAsDocument(String filePath) throws XmlHelperError {
 
         File xmlFile = new File(filePath);
 

@@ -36,11 +36,11 @@ public class Event implements Comparable<Event> {
 		this.contacts = new ArrayList();
 	}
 	
-	void setName(String name) {
+	public void setName(String name) {
 		this.name = name;
 	}
 	
-	void setDate(Date date) {
+	public void setDate(Date date) {
 		this.date = date;
 	}
 	
@@ -48,7 +48,7 @@ public class Event implements Comparable<Event> {
 		this.contacts = contacts;
 	}
 
-	void addContact(Contact contact) {
+	public void addContact(Contact contact) {
 		this.contacts.add(contact);
 	}
 

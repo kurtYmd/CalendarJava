@@ -12,7 +12,7 @@ module com.calendar.calendar {
     requires com.almasb.fxgl.all;
     requires ormlite.jdbc;
     requires java.sql;
+    requires java.desktop;
 
-    opens com to javafx.fxml, ormlite.jdbc;
-    exports com;
+    opens com.calendar to javafx.fxml, ormlite.jdbc;
 }

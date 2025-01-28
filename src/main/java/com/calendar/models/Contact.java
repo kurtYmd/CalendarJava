@@ -32,7 +32,7 @@ public class Contact implements Comparable<Contact> {
 		this.events = new ArrayList();
 	}
 	
-	void setName(String name) {
+	public void setName(String name) {
 		this.name = name;
 	}
 	
@@ -56,7 +56,7 @@ public class Contact implements Comparable<Contact> {
 		return name;
 	}
 	
-	public long getPhone() {
+	public Long getPhone() {
 		return phone;
 	}
 	

@@ -19,83 +19,51 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.Font?>
 <?import javafx.geometry.Insets?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.calendar.controllers.MainController">
-   <top>
-      <MenuBar BorderPane.alignment="CENTER">
-        <menus>
-          <Menu mnemonicParsing="false" text="File">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Load XML" />
-                  <MenuItem mnemonicParsing="false" text="Save XML">
-<!--                      <onAction>writeContactsToXML</onAction>-->
-                  </MenuItem>
-                  <RadioMenuItem mnemonicParsing="false" text="Unspecified Action" />
-                  <MenuItem mnemonicParsing="false" text="Exit" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Add Event" />
-                  <MenuItem mnemonicParsing="false" text="Add Contact" />
-                  <MenuItem mnemonicParsing="false" text="Delete old Event" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="View">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Text Mode" />
-            </items>
-          </Menu>
-            <Menu mnemonicParsing="false" text="Help">
-              <items>
-                <MenuItem mnemonicParsing="false" text="About" />
-              </items>
-            </Menu>
-        </menus>
-      </MenuBar>
-   </top>
-   <center>
-      <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
-        <tabs>
-          <Tab text="Contacts">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <TableView fx:id="contactsTable" layoutX="14.0" layoutY="14.0" prefHeight="276.0" prefWidth="567.0">
-                           <columns>
-                              <TableColumn prefWidth="145.06951141357422" text="Name" />
-                              <TableColumn prefWidth="168.58338928222656" text="Phone" />
-                              <TableColumn prefWidth="252.91665649414062" text="Events" />
-                           </columns>
-                        </TableView>
-                        <ButtonBar layoutX="231.0" layoutY="290.0" prefHeight="40.0" prefWidth="350.0">
-                           <buttons>
-                              <Button fx:id="addContactButton" mnemonicParsing="false" text="Add Contact" onAction="#addContactAction">
-                                 <cursor>
-                                    <Cursor fx:constant="HAND" />
-                                 </cursor>
-                              </Button>
-                              <Button mnemonicParsing="false" text="Edit Contant">
-                                 <cursor>
-                                    <Cursor fx:constant="HAND" />
-                                 </cursor>
-                              </Button>
-                              <Button minWidth="0.0" mnemonicParsing="false" prefHeight="26.0" text="Delete Contact">
-                                 <cursor>
-                                    <Cursor fx:constant="HAND" />
-                                 </cursor>
-                              </Button>
-                           </buttons>
-                        </ButtonBar>
-                     </children>
-                  </AnchorPane>
-            </content>
-          </Tab>
-            <Tab text="Calendar">
-              <content>
-                  <fx:include source="calendarTab.fxml"/>
-              </content>
-            </Tab>
-        </tabs>
-      </TabPane>
-   </center>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
+            prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.calendar.controllers.MainController">
+    <top>
+        <MenuBar BorderPane.alignment="CENTER">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Load XML"/>
+                        <MenuItem mnemonicParsing="false" text="Save XML">
+                        </MenuItem>
+                        <RadioMenuItem mnemonicParsing="false" text="Unspecified Action"/>
+                        <MenuItem mnemonicParsing="false" text="Exit"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Add Event"/>
+                        <MenuItem mnemonicParsing="false" text="Add Contact"/>
+                        <MenuItem mnemonicParsing="false" text="Delete old Event"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="View">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Text Mode"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="About"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+    <center>
+        <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+            <tabs>
+                <Tab text="Contacts">
+                    <fx:include source="contactsTab.fxml"/>
+                </Tab>
+                <Tab text="Calendar">
+                    <fx:include source="calendarTab.fxml"/>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </center>
 </BorderPane>

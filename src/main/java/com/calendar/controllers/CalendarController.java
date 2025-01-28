@@ -152,13 +152,6 @@ public class CalendarController implements Initializable {
         int year = dateFocus.getYear();
         int month = dateFocus.getMonth().getValue();
 
-        Random random = new Random();
-        for (int i = 0; i < 50; i++) {
-            ZonedDateTime time = ZonedDateTime.of(year, month, random.nextInt(27) + 1, 16, 0, 0, 0, dateFocus.getZone());
-            Date date = Date.from(time.toInstant());
-            events.add(new Event("Event " + (i + 1), date));
-        }
-
         return createCalendarMap(events);
     }
 }

@@ -61,8 +61,8 @@ public class Main extends Application {
 		try {
 			//readEventsXML();
 			readContactsXML();
-			Map<String, ArrayList<String>> eventContact = Main.readContactsEvents(true);
-			Map<String, ArrayList<String>> contactEvent = Main.readContactsEvents(false);
+			Map<String, ArrayList<String>> eventContact = Main.readContactsEvents(Boolean.TRUE);
+			Map<String, ArrayList<String>> contactEvent = Main.readContactsEvents(Boolean.FALSE);
 			linkContactsAndEvents(contactEvent, eventContact);
 		} catch (XmlHelperError e) {
 			e.printStackTrace();
@@ -76,7 +76,7 @@ public class Main extends Application {
 		System.out.println();
 
 		editEvent(0);
-		editContact(0);
+//		editContact(0);
 
 		System.out.println();
 

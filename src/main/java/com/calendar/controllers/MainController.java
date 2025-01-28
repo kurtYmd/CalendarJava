@@ -20,7 +20,7 @@ public class MainController {
     @FXML
     public void addContactAction() {
         String name = JOptionPane.showInputDialog("Enter first name");
-        Long phone = null;
+        long phone = 0;
         boolean validPhone = false;
 
         while (!validPhone) {
@@ -43,7 +43,7 @@ public class MainController {
     @FXML
     static void editContactAction(int index) {
         Random rand = new Random();
-        Long phone = (long) (100_000_000 + rand.nextInt(900_000_000));
+        long phone = 100_000_000 + rand.nextInt(900_000_000);
 
         Contact contact;
         try {

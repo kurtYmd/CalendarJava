@@ -16,7 +16,8 @@ module com.calendar.calendar {
 
     exports com.calendar.app to javafx.graphics;
     exports com.calendar.controllers to javafx.fxml;
+    exports com.calendar.models to ormlite.jdbc;
     opens com.calendar.app to javafx.fxml, ormlite.jdbc;
     opens com.calendar.controllers to javafx.fxml;
-    opens com.calendar.models to javafx.base;
+    opens com.calendar.models to javafx.base, ormlite.jdbc;
 }

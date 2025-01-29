@@ -1,6 +1,7 @@
 package com.calendar.controllers;
 
 import com.calendar.app.Main;
+import com.calendar.models.Category;
 import com.calendar.models.Contact;
 import com.calendar.models.Event;
 import javafx.application.Platform;
@@ -14,6 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
@@ -170,6 +172,23 @@ public class CalendarController implements Initializable {
             contactsBox.getChildren().add(checkBox);
         }
 
+        VBox tagsBox = new VBox();
+        tagsBox.setSpacing(5);
+        ToggleGroup categoryToggleGroup = new ToggleGroup();
+        List<RadioButton> tagRadioButtons = new ArrayList<>();
+
+        for (Category category : Main.tableCategoryList) {
+            RadioButton radioButton = new RadioButton(category.getName());
+            radioButton.setToggleGroup(categoryToggleGroup);
+
+            if (event != null && category.equals(event.getCategory())) {
+                radioButton.setSelected(true);
+            }
+
+            tagRadioButtons.add(radioButton);
+            tagsBox.getChildren().add(radioButton);
+        }
+
         VBox content = new VBox(10);
         content.setPadding(new Insets(10));
         content.getChildren().addAll(
@@ -178,7 +197,9 @@ public class CalendarController implements Initializable {
                 new Label("Event Time:"),
                 eventTimeComboBox,
                 new Label("Select Contacts:"),
-                contactsBox
+                contactsBox,
+                new Label("Tags:"),
+                tagsBox
         );
 
         dialog.getDialogPane().setContent(content);
@@ -207,8 +228,16 @@ public class CalendarController implements Initializable {
                 LocalDateTime ldt = LocalDateTime.of(clickedDate, eventTime);
                 Date out = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
 
+                RadioButton selectedRadio = (RadioButton) categoryToggleGroup.getSelectedToggle();
+                Category category = null;
+                if (selectedRadio != null) {
+                    String selectedCategory = selectedRadio.getText();
+                    category = Main.tableCategoryList.stream().filter(c -> c.getName().equals(selectedCategory)).findFirst().orElse(null);
+                }
+
                 if (event == null) {
                     Event newEvent = new Event(eventNameField.getText(), out);
+                    newEvent.setCategory(category);
                     for (Contact contact : selectedContacts) {
                         newEvent.addContact(contact);
                     }
@@ -216,6 +245,7 @@ public class CalendarController implements Initializable {
                 }
                 event.setName(eventNameField.getText());
                 event.setDate(out);
+                event.setCategory(category);
 
                 event.clearContacts();
                 for (Contact contact : selectedContacts) {
@@ -293,6 +323,19 @@ public class CalendarController implements Initializable {
                 eventDetailsBox.getChildren().add(noContactsLabel);
             }
 
+            Label categoryLabel = new Label("Tags:");
+            eventDetailsBox.getChildren().add(categoryLabel);
+
+            Category category = event.getCategory();
+            if(category != null) {
+               Label tagsLabel = new Label(category.getName());
+               tagsLabel.setTextFill(Paint.valueOf(category.getHexColor()));
+               eventDetailsBox.getChildren().add(tagsLabel);
+            } else {
+                Label noTagsLabel = new Label("No tags yet.");
+                eventDetailsBox.getChildren().add(noTagsLabel);
+            }
+
             HBox eventActionsBox = new HBox();
             eventActionsBox.setSpacing(10);
 
@@ -300,7 +343,7 @@ public class CalendarController implements Initializable {
             editButton.setOnAction(e -> {
                 editEvent(event);
                 dialog.close();
-                Map<Integer, List<Event>> newEventsMap = getCalendarEventsMonth(clickedDate.atStartOfDay(ZoneId.systemDefault()));
+                Map<Integer, List<Event>> newEventsMap = getCalendarEventsDay(clickedDate.atStartOfDay(ZoneId.systemDefault()));
                 List<Event> newEvents = newEventsMap.values().stream().flatMap(List::stream).collect(Collectors.toList());
                 Platform.runLater(() -> showEventList(newEvents, selectedDate));
             });
@@ -310,7 +353,7 @@ public class CalendarController implements Initializable {
             deleteButton.setOnAction(e -> {
                 deleteEvent(event);
                 dialog.close();
-                Map<Integer, List<Event>> newEventsMap = getCalendarEventsMonth(clickedDate.atStartOfDay(ZoneId.systemDefault()));
+                Map<Integer, List<Event>> newEventsMap = getCalendarEventsDay(clickedDate.atStartOfDay(ZoneId.systemDefault()));
                 List<Event> newEvents = newEventsMap.values().stream().flatMap(List::stream).collect(Collectors.toList());
                 Platform.runLater(() -> showEventList(newEvents, selectedDate));
             });
@@ -333,26 +376,40 @@ public class CalendarController implements Initializable {
             int eventDate = event.getDate()
                     .toInstant()
                     .atZone(ZoneId.systemDefault())
-                    .getDayOfMonth(); // Extract day of the month
+                    .getDayOfMonth();
             eventMap.computeIfAbsent(eventDate, k -> new ArrayList<>()).add(event);
         }
         return eventMap;
     }
 
     private Map<Integer, List<Event>> getCalendarEventsMonth(ZonedDateTime dateFocus) {
-        List<Event> events = Main.events; // Assuming Main.events holds all events
+        List<Event> events = Main.events;
         int year = dateFocus.getYear();
         int month = dateFocus.getMonthValue();
 
-        // Filter events for the specified year and month
         List<Event> filteredEvents = events.stream()
-                .filter(event -> {
-                    ZonedDateTime eventDate = event.getDate().toInstant().atZone(ZoneId.systemDefault());
-                    return eventDate.getYear() == year && eventDate.getMonthValue() == month;
-                })
-                .collect(Collectors.toList());
+            .filter(event -> {
+                ZonedDateTime eventDate = event.getDate().toInstant().atZone(ZoneId.systemDefault());
+                return eventDate.getYear() == year && eventDate.getMonthValue() == month;
+            })
+            .collect(Collectors.toList());
 
-        // Map events by day of the month
+        return createCalendarMap(filteredEvents);
+    }
+
+    private Map<Integer, List<Event>> getCalendarEventsDay(ZonedDateTime dateFocus) {
+        List<Event> events = Main.events;
+        int year = dateFocus.getYear();
+        int month = dateFocus.getMonthValue();
+        int day = dateFocus.getDayOfMonth();
+
+        List<Event> filteredEvents = events.stream()
+            .filter(event -> {
+                ZonedDateTime eventDate = event.getDate().toInstant().atZone(ZoneId.systemDefault());
+                return eventDate.getYear() == year && eventDate.getMonthValue() == month && eventDate.getDayOfMonth() == day;
+            })
+            .collect(Collectors.toList());
+
         return createCalendarMap(filteredEvents);
     }
 }

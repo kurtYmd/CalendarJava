@@ -18,10 +18,11 @@ public class Event implements Comparable<Event> {
 	private Date date;
 	@DatabaseField(id = true)
 	private String id;
-	private ArrayList<Contact> contacts;
-	@DatabaseField(foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
-	private Category category;
-	
+	private ArrayList<Contact> contacts = new ArrayList<>();
+	@DatabaseField(columnName = "category_id")
+	private String categoryId;
+
+
 	public Event() {}
 
 	public Event(String name, Date date) {
@@ -46,14 +47,14 @@ public class Event implements Comparable<Event> {
 		this.date = date;
 	}
 
-	public void setCategory(Category category) { this.category = category; }
-	
 	void setContacts(ArrayList<Contact> contacts) {
 		this.contacts = contacts;
 	}
 
 	public void addContact(Contact contact) {
-		this.contacts.add(contact);
+		if (contact != null) {
+			this.contacts.add(contact);
+		}
 	}
 
 	public String getId() {
@@ -72,7 +73,20 @@ public class Event implements Comparable<Event> {
 		return Main.dateFormatter.format(this.date);
 	}
 
-	public Category getCategory() { return category; }
+	public String getCategoryId() {
+		return categoryId;
+	}
+
+	public void setCategory(Category category) {
+		this.categoryId = (category != null) ? category.getId() : null;
+	}
+
+	public Category getCategory() {
+		return Main.tableCategoryList.stream()
+				.filter(c -> c.getId().equals(categoryId))
+				.findFirst()
+				.orElse(null);
+	}
 	
 	public ArrayList<Contact> getContacts() {
 		return this.contacts;

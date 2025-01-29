@@ -83,9 +83,6 @@ public class Category {
 
     @Override
     public String toString() {
-        return "Category{" +
-                ", name='" + name + '\'' +
-                ", hexColor='" + hexColor + '\'' +
-                '}';
+        return this.getName() + " " + this.getHexColor();
     }
 }

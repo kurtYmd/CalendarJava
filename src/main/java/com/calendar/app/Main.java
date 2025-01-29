@@ -14,11 +14,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import javafx.scene.control.ButtonType;
 
 import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
@@ -42,10 +44,24 @@ public class Main extends Application {
 
 	@Override
 	public void start(Stage stage) throws IOException {
+		CalendarApp app = new CalendarApp();
+		app.readAll();
+		app.closeConnectionSource();
+		app = null;
+
 		FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/com/calendar/view/calendar.fxml"));
 		Scene scene = new Scene(fxmlLoader.load());
 		stage.setTitle("Hello!");
 		stage.setScene(scene);
+
+		stage.setOnCloseRequest(event -> {
+			if (!confirmExit()) {
+				event.consume();
+			} else {
+				onExit();
+			}
+		});
+
 		stage.show();
 	}
 	
@@ -61,9 +77,27 @@ public class Main extends Application {
 	public static String eventsPath = "static/events.xml";
 	public static String contactsEventsPath = "static/contactsEvents.xml";
 
-	public static void main(String[] args) {
+	private boolean confirmExit() {
+		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+		alert.setTitle("Exit");
+		alert.setHeaderText("Are you sure you want to exit?");
+		alert.setContentText("All data will be saved");
 
-		launch(args);
+		Optional<ButtonType> result = alert.showAndWait();
+		return result.isPresent() && result.get() == ButtonType.OK;
+	}
+
+	private void onExit() {
+		System.out.println("Saving data before exiting.");
+		CalendarApp app = new CalendarApp();
+		app.saveAll();
+		app.closeConnectionSource();
+		app = null;
+		System.out.println("All data was saved.");
+	}
+
+	public static void main(String[] args) {
+			launch(args);
 //		CalendarApp app = new CalendarApp();
 //
 //		try {

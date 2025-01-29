@@ -13,8 +13,7 @@ public class Contact implements Comparable<Contact> {
 	private String name;
 	@DatabaseField()
 	private long phone;
-	@ForeignCollectionField(eager = false)
-	private ArrayList<Event> events;
+	private ArrayList<Event> events = new ArrayList<>();
 	@DatabaseField(id = true)
 	private String id;
 
@@ -47,7 +46,9 @@ public class Contact implements Comparable<Contact> {
 	}
 	
 	public void addEvent(Event event) {
-		this.events.add(event);
+		if (event != null) {
+			this.events.add(event);
+		}
 	}
 	
 	public String getId() {

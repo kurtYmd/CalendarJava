@@ -1,0 +1,8 @@
+module:com.calendar.calendar
+com.calendar.app
+com.calendar.controllers
+com.calendar.models
+com.calendar.services
+com.calendar.utils
+com.calendar.utils.comparators
+com.calendar.utils.helpers

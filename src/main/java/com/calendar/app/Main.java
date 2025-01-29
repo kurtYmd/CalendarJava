@@ -1,28 +1,23 @@
 package com.calendar.app;
 
+import com.calendar.controllers.ConsoleModeController;
 import com.calendar.models.Category;
 import com.calendar.models.Contact;
 import com.calendar.models.Event;
-import com.calendar.utils.comparators.ContactByPhoneComparator;
-import com.calendar.utils.comparators.EventByDateComparator;
 import com.calendar.utils.helpers.XmlHelper;
 import com.calendar.utils.helpers.XmlHelperError;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import javafx.scene.control.ButtonType;
 
-import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -77,6 +72,8 @@ public class Main extends Application {
 	public static String eventsPath = "static/events.xml";
 	public static String contactsEventsPath = "static/contactsEvents.xml";
 
+	private static boolean consoleMode = false;
+
 	private boolean confirmExit() {
 		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 		alert.setTitle("Exit");
@@ -97,53 +94,18 @@ public class Main extends Application {
 	}
 
 	public static void main(String[] args) {
+		for (String arg : args) {
+			if (arg.equalsIgnoreCase("--console")) {
+				consoleMode = true;
+				break;
+			}
+		}
+
+		if (consoleMode) {
+			new ConsoleModeController().launch();
+		} else {
 			launch(args);
-//		CalendarApp app = new CalendarApp();
-//
-//		try {
-//			//readEventsXML();
-//			readContactsXML();
-//			Map<String, ArrayList<String>> eventContact = Main.readContactsEvents(true);
-//			Map<String, ArrayList<String>> contactEvent = Main.readContactsEvents(false);
-//			linkContactsAndEvents(contactEvent, eventContact);
-//		} catch (XmlHelperError e) {
-//			e.printStackTrace();
-//			return;
-//		};
-//
-//		// Edit
-//		showEvents();
-//		showContatcs();
-//
-//		System.out.println();
-//
-//		editEvent(0);
-////		editContact(0);
-//
-//		System.out.println();
-//
-//		showEvents();
-//		showContatcs();
-//
-//		System.out.println();
-//
-//		// Sort
-//		sortContacts();
-//		sortEvents();
-//
-//		showEvents();
-//		showContatcs();
-//
-//		System.out.println();
-//
-//		// Sort by comparator
-//		sortContactsByComporator(new ContactByPhoneComparator());
-//		sortEventsByComporator(new EventByDateComparator());
-//
-//		showEvents();
-//		showContatcs();
-//
-//		writeEventsToXML();
+		}
 	}
 
 	public static void readAllData() {

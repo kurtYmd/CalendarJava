@@ -3,13 +3,13 @@ package com.calendar.controllers;
 import com.calendar.app.Main;
 import com.calendar.models.Contact;
 import com.calendar.models.Event;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -102,11 +102,11 @@ public class CalendarController implements Initializable {
                         date.setTranslateY(textTranslationY);
                         stackPane.getChildren().add(date);
                         rectangle.setPickOnBounds(false);
-                        rectangle.setOnMouseClicked(e -> createUpdateEvent(currentDate));
+                        rectangle.setOnMouseClicked(e -> createUpdateEvent(currentDate, null));
 
                         List<Event> events = calendarEventMap.get(currentDate);
                         if (events != null) {
-                            Button eventButton = new Button("Show events");
+                            Button eventButton = new Button("Events" + events.size());
                             eventButton.setOnAction(e -> showEventList(events, currentDate));
                             stackPane.getChildren().add(eventButton);
                         }
@@ -121,9 +121,19 @@ public class CalendarController implements Initializable {
         }
     }
 
-    private void createUpdateEvent(int selectedDate) {
-        LocalDate clickedDate = LocalDate.from(dateFocus.withDayOfMonth(selectedDate));
-        System.out.println("Clicked date: " + clickedDate);
+    private void createUpdateEvent(int selectedDate, Event event) {
+        // Определяем дату для события
+        LocalDate clickedDate;
+        LocalTime clickedTime;
+
+        if (selectedDate == -1 && event != null && event.getDate() != null) {
+            Instant instant = event.getDate().toInstant();
+            clickedDate = instant.atZone(ZoneId.systemDefault()).toLocalDate();
+            clickedTime = instant.atZone(ZoneId.systemDefault()).toLocalTime();
+        } else {
+            clickedDate = LocalDate.from(dateFocus.withDayOfMonth(selectedDate));
+            clickedTime = LocalTime.of(12, 0);
+        }
 
         Dialog<Event> dialog = new Dialog<>();
         dialog.setTitle("Create or Update Event");
@@ -134,14 +144,19 @@ public class CalendarController implements Initializable {
 
         TextField eventNameField = new TextField();
         eventNameField.setPromptText("Enter event name");
+        if (event != null) {
+            eventNameField.setText(event.getName());
+        }
 
         ComboBox<String> eventTimeComboBox = new ComboBox<>();
         eventTimeComboBox.setPromptText("Select Time");
-
         for (int hour = 0; hour < 24; hour++) {
             for (int minute = 0; minute < 60; minute += 15) {
                 eventTimeComboBox.getItems().add(String.format("%02d:%02d", hour, minute));
             }
+        }
+        if (clickedTime != null) {
+            eventTimeComboBox.setValue(String.format("%02d:%02d", clickedTime.getHour(), clickedTime.getMinute()));
         }
 
         VBox contactsBox = new VBox();
@@ -149,6 +164,9 @@ public class CalendarController implements Initializable {
         List<CheckBox> contactCheckboxes = new ArrayList<>();
         for (Contact contact : Main.contacts) {
             CheckBox checkBox = new CheckBox(contact.toString());
+            if (event != null && event.getContacts().contains(contact)) {
+                checkBox.setSelected(true);
+            }
             contactCheckboxes.add(checkBox);
             contactsBox.getChildren().add(checkBox);
         }
@@ -189,21 +207,46 @@ public class CalendarController implements Initializable {
 
                 LocalDateTime ldt = LocalDateTime.of(clickedDate, eventTime);
                 Date out = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
-                Event newEvent = new Event(eventNameField.getText(), out);
-                for (Contact contact: selectedContacts) {
-                    newEvent.addContact(contact);
-                }
-                System.out.println("Created event: " + newEvent);
 
-                return newEvent;
+                if (event == null) {
+                    Event newEvent = new Event(eventNameField.getText(), out);
+                    for (Contact contact : selectedContacts) {
+                        newEvent.addContact(contact);
+                    }
+                    return newEvent;
+                }
+                event.setName(eventNameField.getText());
+                event.setDate(out);
+
+                event.clearContacts();
+                for (Contact contact : selectedContacts) {
+                    event.addContact(contact);
+                }
+
+                System.out.println("Created/Updated event: " + event);
+
+                return event;
             }
             return null;
         });
 
         Optional<Event> result = dialog.showAndWait();
-        result.ifPresent(event -> {
-            saveEvent(event);
-        });
+        if (event == null) {
+            result.ifPresent(e -> saveEvent(e));
+        } else {
+            result.ifPresent(e -> drawCalendar());
+        }
+    }
+
+
+    private void editEvent(Event event) {
+//        createUpdateEvent(event.getDate().toInstant().atZone(ZoneId.systemDefault()).getDayOfMonth(), event);
+        createUpdateEvent(-1, event);
+    }
+
+    private void deleteEvent(Event event) {
+        Main.events.remove(event);
+        drawCalendar();
     }
 
     private void showAlert(String title, String message) {
@@ -216,8 +259,10 @@ public class CalendarController implements Initializable {
 
     private void saveEvent(Event event) {
         System.out.println("Event saved: " + event);
-        Main.events.add(event);
-        drawCalendar();
+        if (event != null) {
+            Main.events.add(event);
+            drawCalendar();
+        }
     }
 
 
@@ -250,6 +295,27 @@ public class CalendarController implements Initializable {
                 Label noContactsLabel = new Label("No contacts linked to this event.");
                 eventDetailsBox.getChildren().add(noContactsLabel);
             }
+
+            Button editButton = new Button("Edit Event");
+            editButton.setOnAction(e -> {
+                editEvent(event);
+                dialog.close();
+                Map<Integer, List<Event>> newEventsMap = getCalendarEventsMonth(clickedDate.atStartOfDay(ZoneId.systemDefault()));
+                List<Event> newEvents = newEventsMap.values().stream().flatMap(List::stream).collect(Collectors.toList());
+                Platform.runLater(() -> showEventList(newEvents, selectedDate));
+            });
+            eventDetailsBox.getChildren().add(editButton);
+
+            Button deleteButton = new Button("Delete Event");
+            deleteButton.setOnAction(e -> {
+                deleteEvent(event);
+                dialog.close();
+                Map<Integer, List<Event>> newEventsMap = getCalendarEventsMonth(clickedDate.atStartOfDay(ZoneId.systemDefault()));
+                List<Event> newEvents = newEventsMap.values().stream().flatMap(List::stream).collect(Collectors.toList());
+                Platform.runLater(() -> showEventList(newEvents, selectedDate));
+            });
+            eventDetailsBox.getChildren().add(deleteButton);
+
 
             eventBox.getChildren().add(eventDetailsBox);
         }

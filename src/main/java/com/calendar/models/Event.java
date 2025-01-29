@@ -80,6 +80,10 @@ public class Event implements Comparable<Event> {
 		return this.getId() + " " + this.getName() + " " + this.getTxtDate() + " Contacts: " + this.getContacts().toString();
 	}
 
+	public void clearContacts() {
+		this.contacts.clear();
+	}
+
 	@Override public int compareTo(Event a)
     {
         if (this.name.compareTo(a.name) != 0) {

@@ -1,6 +1,7 @@
 package com.calendar.models;
 
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ public class Contact implements Comparable<Contact> {
 	private String name;
 	@DatabaseField()
 	private long phone;
-	private ArrayList<Event> events;
+	private ArrayList<Event> events = new ArrayList<>();
 	@DatabaseField(id = true)
 	private String id;
 
@@ -32,7 +33,7 @@ public class Contact implements Comparable<Contact> {
 		this.events = new ArrayList();
 	}
 	
-	void setName(String name) {
+	public void setName(String name) {
 		this.name = name;
 	}
 	
@@ -45,7 +46,9 @@ public class Contact implements Comparable<Contact> {
 	}
 	
 	public void addEvent(Event event) {
-		this.events.add(event);
+		if (event != null) {
+			this.events.add(event);
+		}
 	}
 	
 	public String getId() {
@@ -56,7 +59,7 @@ public class Contact implements Comparable<Contact> {
 		return name;
 	}
 	
-	public long getPhone() {
+	public Long getPhone() {
 		return phone;
 	}
 	
@@ -67,13 +70,21 @@ public class Contact implements Comparable<Contact> {
 	public ArrayList<Event> getEvents() {
 		return this.events;
 	}
+
+	public String getEventsTxt() {
+		StringBuilder r = new StringBuilder();
+		for (Event e : this.events) {
+			r.append(e.toString()).append("\n");
+		}
+		return r.toString();
+	}
 	
 	public String toString() {
-		return getId() + " " + getName() + " " + getPhoneString();
+		return getName() + " " + getPhoneString();
 	}
 	
 	public String toString(boolean withEvents) {
-		return getId() + " " + getName() + " " + getPhoneString() + " Events: " + this.getEvents().toString();
+		return getName() + " " + getPhoneString() + " Events: " + this.getEvents().toString();
 	}
 	
 	@Override public int compareTo(Contact c) {

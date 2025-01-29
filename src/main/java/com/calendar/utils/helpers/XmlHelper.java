@@ -13,13 +13,14 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 
 
 public class XmlHelper {
 
-    public static Document openXmlAsDocument(String filePath) throws XmlHelperError {
+    public static Document openXmlAsDocument(String filePath) throws XmlHelperError, FileNotFoundException {
 
         File xmlFile = new File(filePath);
 
@@ -39,8 +40,7 @@ public class XmlHelper {
         try {
         	document = builder.parse(xmlFile);
         } catch (IOException e) { 
-        	e.printStackTrace();
-        	throw new XmlHelperError("IOException");
+        	throw new FileNotFoundException();
         } catch (SAXException e) {
 			e.printStackTrace();
         	throw new XmlHelperError("SAXException");

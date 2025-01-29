@@ -16,8 +16,8 @@ public class DataBase {
         return databaseUrl;
     }
 
-    public JdbcConnectionSource getConn() {
-        return connectionSource;
+    public JdbcConnectionSource getConn() throws SQLException {
+        return new JdbcConnectionSource(databaseUrl);
     }
 
 }

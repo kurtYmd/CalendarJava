@@ -19,7 +19,7 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.Font?>
 <?import javafx.geometry.Insets?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="640.0"
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="680.0"
             prefWidth="750.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.calendar.controllers.MainController">
     <top>
@@ -48,21 +48,18 @@
                 </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="About"/>
+                        <MenuItem mnemonicParsing="false" text="About Calendar" onAction="#showAboutDialog"/>
                     </items>
                 </Menu>
             </menus>
         </MenuBar>
     </top>
     <center>
-        <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+        <TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
             <tabs>
-                <Tab text="Contacts">
-                    <fx:include source="contactsTab.fxml"/>
-                </Tab>
-                <Tab text="Calendar">
-                    <fx:include source="calendarTab.fxml"/>
-                </Tab>
+                <Tab fx:id="contactsTab" text="Contacts" />
+                <Tab fx:id="categoriesTab" text="Categories" />
+                <Tab fx:id="calendarTab" text="Calendar" />
             </tabs>
         </TabPane>
     </center>

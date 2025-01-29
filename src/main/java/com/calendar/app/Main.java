@@ -7,6 +7,8 @@ import com.calendar.utils.comparators.EventByDateComparator;
 import com.calendar.utils.helpers.XmlHelper;
 import com.calendar.utils.helpers.XmlHelperError;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -45,6 +47,7 @@ public class Main extends Application {
 	
 	public static ArrayList<Contact> contacts = new ArrayList<Contact>();
 	public static ArrayList<Event> events = new ArrayList<Event>();
+	public static ObservableList<Contact> tableContactsList = FXCollections.observableArrayList();
 
 	public static String dateFormat = "yyyy-MM-dd HH:mm";
 	public static DateFormat dateFormatter = new SimpleDateFormat(Main.dateFormat);

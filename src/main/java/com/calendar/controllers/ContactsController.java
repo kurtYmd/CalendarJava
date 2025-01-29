@@ -4,8 +4,7 @@ import com.calendar.models.Contact;
 import com.calendar.app.Main;
 import com.calendar.utils.helpers.XmlHelper;
 import com.calendar.utils.helpers.XmlHelperError;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -38,7 +37,8 @@ public class ContactsController {
     @FXML
     TableColumn<Contact, Long> phoneColumn;
 
-    private ObservableList<Contact> tableContactsList = FXCollections.observableArrayList();
+    @FXML
+    TableColumn<Contact, String> eventColumn;
 
     @FXML
     Button addContactButton;
@@ -53,11 +53,12 @@ public class ContactsController {
     public void initialize() {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
+        eventColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getEventsTxt()));
 
         nameColumn.setComparator(new ContactByNameComparator());
         phoneColumn.setComparator(new ContactByPhoneComparator());
 
-        contactsTable.setItems(tableContactsList);
+        contactsTable.setItems(Main.tableContactsList);
     }
 
     @FXML
@@ -98,7 +99,7 @@ public class ContactsController {
             if (phone != null) {
                 Contact contact = new Contact(name, phone);
                 Main.contacts.add(contact);
-                tableContactsList.add(contact);
+                Main.tableContactsList.add(contact);
             }
         }
 
@@ -159,7 +160,7 @@ public class ContactsController {
         Contact selectedContact = contactsTable.getSelectionModel().getSelectedItem();
         if (selectedContact != null) {
             Main.contacts.remove(selectedContact);
-            tableContactsList.remove(selectedContact);
+            Main.tableContactsList.remove(selectedContact);
         } else {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("No Selection");

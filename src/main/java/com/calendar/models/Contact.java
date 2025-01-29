@@ -67,6 +67,14 @@ public class Contact implements Comparable<Contact> {
 	public ArrayList<Event> getEvents() {
 		return this.events;
 	}
+
+	public String getEventsTxt() {
+		StringBuilder r = new StringBuilder();
+		for (Event e : this.events) {
+			r.append(e.toString()).append("\n");
+		}
+		return r.toString();
+	}
 	
 	public String toString() {
 		return getName() + " " + getPhoneString();

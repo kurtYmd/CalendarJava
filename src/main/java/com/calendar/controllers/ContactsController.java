@@ -12,6 +12,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import com.calendar.utils.comparators.ContactByNameComparator;
+import com.calendar.utils.comparators.ContactByPhoneComparator;
 
 import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
@@ -51,6 +53,9 @@ public class ContactsController {
     public void initialize() {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
+
+        nameColumn.setComparator(new ContactByNameComparator());
+        phoneColumn.setComparator(new ContactByPhoneComparator());
 
         contactsTable.setItems(tableContactsList);
     }

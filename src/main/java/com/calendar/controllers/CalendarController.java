@@ -69,9 +69,7 @@ public class CalendarController implements Initializable {
         double spacingH = calendar.getHgap();
         double spacingV = calendar.getVgap();
 
-        // List of events for a given month
         Map<Integer, List<Event>> calendarEventMap = getCalendarEventsMonth(dateFocus);
-        System.out.println(calendarEventMap.size());
 
         int monthMaxDate = dateFocus.getMonth().maxLength();
         if (dateFocus.getYear() % 4 != 0 && monthMaxDate == 29) {
@@ -224,8 +222,6 @@ public class CalendarController implements Initializable {
                     event.addContact(contact);
                 }
 
-                System.out.println("Created/Updated event: " + event);
-
                 return event;
             }
             return null;
@@ -258,7 +254,6 @@ public class CalendarController implements Initializable {
     }
 
     private void saveEvent(Event event) {
-        System.out.println("Event saved: " + event);
         if (event != null) {
             Main.events.add(event);
             drawCalendar();
@@ -351,7 +346,6 @@ public class CalendarController implements Initializable {
         List<Event> filteredEvents = events.stream()
                 .filter(event -> {
                     ZonedDateTime eventDate = event.getDate().toInstant().atZone(ZoneId.systemDefault());
-                    System.out.println("Filtered event: " + eventDate.getYear() + " " + eventDate.getMonth() + " ::: YEAR " + year + " MONTH " + month);
                     return eventDate.getYear() == year && eventDate.getMonthValue() == month;
                 })
                 .collect(Collectors.toList());

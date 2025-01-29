@@ -19,6 +19,7 @@ public class Event implements Comparable<Event> {
 	@DatabaseField(id = true)
 	private String id;
 	private ArrayList<Contact> contacts;
+	private Category category;
 	
 	public Event() {}
 

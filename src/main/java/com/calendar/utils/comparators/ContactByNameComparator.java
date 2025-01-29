@@ -3,8 +3,9 @@ import com.calendar.models.Contact;
 
 import java.util.Comparator;
 
-public class ContactByNameComparator implements Comparator<Contact> {
-	public int compare(Contact a, Contact b) {
-		return a.getName().compareTo(b.getName());
+public class ContactByNameComparator implements Comparator<String> {
+	@Override
+	public int compare(String a, String b) {
+		return a.compareToIgnoreCase(b);
 	}
 }

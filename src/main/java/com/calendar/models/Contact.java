@@ -69,11 +69,11 @@ public class Contact implements Comparable<Contact> {
 	}
 	
 	public String toString() {
-		return getId() + " " + getName() + " " + getPhoneString();
+		return getName() + " " + getPhoneString();
 	}
 	
 	public String toString(boolean withEvents) {
-		return getId() + " " + getName() + " " + getPhoneString() + " Events: " + this.getEvents().toString();
+		return getName() + " " + getPhoneString() + " Events: " + this.getEvents().toString();
 	}
 	
 	@Override public int compareTo(Contact c) {

@@ -10,6 +10,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -240,7 +241,6 @@ public class CalendarController implements Initializable {
 
 
     private void editEvent(Event event) {
-//        createUpdateEvent(event.getDate().toInstant().atZone(ZoneId.systemDefault()).getDayOfMonth(), event);
         createUpdateEvent(-1, event);
     }
 
@@ -296,6 +296,9 @@ public class CalendarController implements Initializable {
                 eventDetailsBox.getChildren().add(noContactsLabel);
             }
 
+            HBox eventActionsBox = new HBox();
+            eventActionsBox.setSpacing(10);
+
             Button editButton = new Button("Edit Event");
             editButton.setOnAction(e -> {
                 editEvent(event);
@@ -304,7 +307,7 @@ public class CalendarController implements Initializable {
                 List<Event> newEvents = newEventsMap.values().stream().flatMap(List::stream).collect(Collectors.toList());
                 Platform.runLater(() -> showEventList(newEvents, selectedDate));
             });
-            eventDetailsBox.getChildren().add(editButton);
+            eventActionsBox.getChildren().add(editButton);
 
             Button deleteButton = new Button("Delete Event");
             deleteButton.setOnAction(e -> {
@@ -314,9 +317,9 @@ public class CalendarController implements Initializable {
                 List<Event> newEvents = newEventsMap.values().stream().flatMap(List::stream).collect(Collectors.toList());
                 Platform.runLater(() -> showEventList(newEvents, selectedDate));
             });
-            eventDetailsBox.getChildren().add(deleteButton);
+            eventActionsBox.getChildren().add(deleteButton);
 
-
+            eventDetailsBox.getChildren().add(eventActionsBox);
             eventBox.getChildren().add(eventDetailsBox);
         }
 

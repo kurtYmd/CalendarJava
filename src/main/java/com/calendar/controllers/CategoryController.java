@@ -69,6 +69,7 @@ public class CategoryController {
 
         Category newCategory = new Category(categoryName, selectedHexColor);
         Main.tableCategoryList.add(newCategory);
+        Main.writeCategoriesToXML();
         categoryTable.refresh();
     }
 
@@ -121,6 +122,7 @@ public class CategoryController {
             selectedCategory.setHexColor(Category.PREDEFINED_COLORS.get(newColorName));
         }
 
+        Main.writeCategoriesToXML();
         categoryTable.refresh();
     }
 
@@ -130,6 +132,7 @@ public class CategoryController {
         Category selectedCategory = categoryTable.getSelectionModel().getSelectedItem();
         if (selectedCategory != null) {
             Main.tableContactsList.remove(selectedCategory);
+            Main.writeCategoriesToXML();
         } else {
             showError("Select Category", "Please select a category to delete.");
         }

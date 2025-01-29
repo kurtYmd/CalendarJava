@@ -26,6 +26,7 @@ public class MainController {
         Dialog aboutDialog = new Dialog();
         aboutDialog.setTitle("About Program");
         aboutDialog.setContentText("Calendar version 1.0");
+        aboutDialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
         aboutDialog.showAndWait();
     }
 

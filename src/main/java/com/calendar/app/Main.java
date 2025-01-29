@@ -57,6 +57,7 @@ public class Main extends Application {
 	public static DateFormat dateFormatter = new SimpleDateFormat(Main.dateFormat);
 
 	public static String contactsPath = "static/contacts.xml";
+	public static String categoriesPath = "static/categories.xml";
 	public static String eventsPath = "static/events.xml";
 	public static String contactsEventsPath = "static/contactsEvents.xml";
 
@@ -112,12 +113,34 @@ public class Main extends Application {
 	}
 
 	public static void readAllData() {
+		tableContactsList.clear();
+		tableCategoryList.clear();
+		events.clear();
 		try {
-			tableContactsList.clear();
-			tableCategoryList.clear();
-			events.clear();
-			readEventsXML();
 			readContactsXML();
+		} catch (XmlHelperError e) {
+			e.printStackTrace();
+			return;
+		} catch (FileNotFoundException e) {
+			return;
+		}
+		try {
+			readCategoriesXML();
+		} catch (XmlHelperError e) {
+			e.printStackTrace();
+			return;
+		} catch (FileNotFoundException e) {
+			return;
+		}
+		try {
+			readEventsXML();
+		} catch (XmlHelperError e) {
+			e.printStackTrace();
+			return;
+		} catch (FileNotFoundException e) {
+			return;
+		}
+		try {
 			Map<String, ArrayList<String>> eventContact = Main.readContactsEvents(true);
 			Map<String, ArrayList<String>> contactEvent = Main.readContactsEvents(false);
 			linkContactsAndEvents(contactEvent, eventContact);
@@ -186,6 +209,62 @@ public class Main extends Application {
 		}
 	}
 
+	public static void writeCategoriesToXML() {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder;
+
+		try {
+			builder = factory.newDocumentBuilder();
+		} catch(ParserConfigurationException e) {
+			e.printStackTrace();
+			return;
+		}
+
+		Document document = builder.newDocument();
+
+		Element root = document.createElement("categories");
+		document.appendChild(root);
+
+		Main.tableCategoryList.forEach((category) -> {
+			Element categoryDoc = document.createElement("category");
+			categoryDoc.setAttribute("id", category.getId());
+			categoryDoc.setAttribute("name", category.getName());
+			categoryDoc.setAttribute("hexColor", category.getHexColor());
+			root.appendChild(categoryDoc);
+		});
+
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer;
+		try {
+			transformer = transformerFactory.newTransformer();
+		} catch (TransformerConfigurationException e) {
+			e.printStackTrace();
+			return;
+		}
+		DOMSource source = new DOMSource(document);
+		StreamResult result = new StreamResult(Main.categoriesPath);
+		try {
+			transformer.transform(source, result);
+		} catch (TransformerException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void readCategoriesXML() throws XmlHelperError, FileNotFoundException {
+
+		Document document = XmlHelper.openXmlAsDocument(Main.categoriesPath);
+
+		NodeList nodeList = document.getElementsByTagName("category");
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Element node = (Element)nodeList.item(i);
+			String id = node.getAttribute("id");
+			String name = node.getAttribute("name");
+			String hexColor = node.getAttribute("hexColor");
+			Category category = new Category(id, name, hexColor);
+			Main.tableCategoryList.add(category);
+		}
+	}
+
 	public static void writeEventsToXML() {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder;
@@ -213,11 +292,7 @@ public class Main extends Application {
 			eventDoc.setAttribute("date", event.getTxtDate());
 			Category category = event.getCategory();
 			if (category != null) {
-				Element categoryDoc = document.createElement("category");
-				categoryDoc.setAttribute("id", category.getId());
-				categoryDoc.setAttribute("name", category.getName());
-				categoryDoc.setAttribute("hexColor", category.getHexColor());
-				eventDoc.appendChild(categoryDoc);
+				eventDoc.setAttribute("categoryId", category.getId());
 			}
 			event.getContacts().forEach((contact) -> {
 				Element contactWithEventDoc = documentWithEvents.createElement("contactEvent");
@@ -258,20 +333,11 @@ public class Main extends Application {
             String id = node.getAttribute("id");
 			String dateTxt = node.getAttribute("date");
 			String name = node.getAttribute("name");
-			Element categoryDoc = (Element)node.getFirstChild();
-			Category category = null;
-			if (categoryDoc != null) {
-				String categoryId = categoryDoc.getAttribute("id");
-				String categoryName = categoryDoc.getAttribute("name");
-				String categoryHexColor = categoryDoc.getAttribute("hexColor");
-				category = tableCategoryList.stream()
+			String categoryId = node.getAttribute("categoryId");
+			Category category = tableCategoryList.stream()
 						.filter(x -> x.getId().equals(categoryId))
 						.findFirst()
 						.orElse(null);
-				if (category == null) {
-					category = new Category(categoryId, categoryName, categoryHexColor);
-				}
-			}
 			try {
 				Date date = Main.dateFormatter.parse(dateTxt);
 				Event event = new Event(id, name, date);

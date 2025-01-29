@@ -105,7 +105,7 @@ public class CalendarController implements Initializable {
 
                         List<Event> events = calendarEventMap.get(currentDate);
                         if (events != null) {
-                            Button eventButton = new Button("Events" + events.size());
+                            Button eventButton = new Button("Events: " + events.size());
                             eventButton.setOnAction(e -> showEventList(events, currentDate));
                             stackPane.getChildren().add(eventButton);
                         }

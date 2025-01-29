@@ -161,7 +161,7 @@ public class CalendarController implements Initializable {
         VBox contactsBox = new VBox();
         contactsBox.setSpacing(5);
         List<CheckBox> contactCheckboxes = new ArrayList<>();
-        for (Contact contact : Main.contacts) {
+        for (Contact contact : Main.tableContactsList) {
             CheckBox checkBox = new CheckBox(contact.toString());
             if (event != null && event.getContacts().contains(contact)) {
                 checkBox.setSelected(true);
@@ -195,7 +195,7 @@ public class CalendarController implements Initializable {
                 List<Contact> selectedContacts = new ArrayList<>();
                 for (int i = 0; i < contactCheckboxes.size(); i++) {
                     if (contactCheckboxes.get(i).isSelected()) {
-                        selectedContacts.add(Main.contacts.get(i));
+                        selectedContacts.add(Main.tableContactsList.get(i));
                     }
                 }
 
@@ -233,6 +233,7 @@ public class CalendarController implements Initializable {
         } else {
             result.ifPresent(e -> drawCalendar());
         }
+        Main.writeEventsToXML();
     }
 
 
@@ -242,6 +243,7 @@ public class CalendarController implements Initializable {
 
     private void deleteEvent(Event event) {
         Main.events.remove(event);
+        Main.writeEventsToXML();
         drawCalendar();
     }
 

@@ -98,8 +98,8 @@ public class ContactsController {
 
             if (phone != null) {
                 Contact contact = new Contact(name, phone);
-                Main.contacts.add(contact);
                 Main.tableContactsList.add(contact);
+                Main.writeContactsToXML();
             }
         }
 
@@ -152,6 +152,7 @@ public class ContactsController {
             }
         }
 
+        Main.writeContactsToXML();
         contactsTable.refresh();
     }
 
@@ -159,8 +160,8 @@ public class ContactsController {
     public void deleteContactAction() {
         Contact selectedContact = contactsTable.getSelectionModel().getSelectedItem();
         if (selectedContact != null) {
-            Main.contacts.remove(selectedContact);
             Main.tableContactsList.remove(selectedContact);
+            Main.writeContactsToXML();
         } else {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("No Selection");
@@ -168,118 +169,6 @@ public class ContactsController {
             alert.setContentText("Please select a contact to delete.");
             alert.showAndWait();
         }
-    }
-
-
-    @FXML
-    void writeContactsToXML() {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder;
-
-        try {
-            builder = factory.newDocumentBuilder();
-        } catch(ParserConfigurationException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        Document document = builder.newDocument();
-        Document documentWithEvents = builder.newDocument();
-
-        Element rootWithEvents = documentWithEvents.createElement("contactsEvents");
-        documentWithEvents.appendChild(rootWithEvents);
-
-        Element root = document.createElement("contacts");
-        document.appendChild(root);
-
-        Main.contacts.forEach((contact) -> {
-            Element contactDoc = document.createElement("contact");
-            contactDoc.setAttribute("id", contact.getId());
-            contactDoc.setAttribute("name", contact.getName());
-            contactDoc.setAttribute("phone", contact.getPhoneString());
-            contact.getEvents().forEach((event) -> {
-                Element contactWithEventDoc = documentWithEvents.createElement("contactEvent");
-                contactWithEventDoc.setAttribute("contactId", contact.getId());
-                contactWithEventDoc.setAttribute("eventId", event.getId());
-                rootWithEvents.appendChild(contactWithEventDoc);
-            });
-            root.appendChild(contactDoc);
-        });
-
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer;
-        try {
-            transformer = transformerFactory.newTransformer();
-        } catch (TransformerConfigurationException e) {
-            e.printStackTrace();
-            return;
-        }
-        DOMSource source = new DOMSource(document);
-        DOMSource sourceWithEvent = new DOMSource(documentWithEvents);
-
-        StreamResult result = new StreamResult("/Users/kurtymd/eclipse-workspace/task2/src/task2/static/contacts.xml");
-        StreamResult resultWithEvent = new StreamResult("/Users/kurtymd/eclipse-workspace/task2/src/task2/static/contactsEvents.xml");
-        try {
-            transformer.transform(source, result);
-            transformer.transform(sourceWithEvent, resultWithEvent);
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    static void readContactsXML() throws XmlHelperError {
-
-        Document document = XmlHelper.openXmlAsDocument(Main.contactsPath);
-
-        NodeList nodeList = document.getElementsByTagName("contact");
-        Main.contacts.clear();
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Element node = (Element)nodeList.item(i);
-            String id = node.getAttribute("id");
-            String name = node.getAttribute("name");
-            String phoneTxt = node.getAttribute("phone");
-            long phone = Long.parseLong(phoneTxt);
-            Contact contact = new Contact(id, name, phone);
-            Main.contacts.add(contact);
-        }
-    }
-
-    @FXML
-    static Map<String, ArrayList<String>> readContactsEvents(Boolean reverse) throws XmlHelperError {
-        Map<String, ArrayList<String>> contactsEvents = new Hashtable<String, ArrayList<String>>();
-
-        Document contactsEventsDoc = XmlHelper.openXmlAsDocument(Main.contactsEventsPath);
-
-        NodeList nodeList = contactsEventsDoc.getElementsByTagName("contactEvent");
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Element node = (Element)nodeList.item(i);
-
-            String eventId = node.getAttribute("eventId");
-            String contactId = node.getAttribute("contactId");
-
-            if (reverse) {
-                ArrayList<String> elems = contactsEvents.get(eventId);
-
-                if (elems == null) {
-                    elems = new ArrayList<>();
-                    contactsEvents.put(eventId, elems);
-                }
-                if(!elems.contains(contactId)) elems.add(contactId);
-
-            } else {
-                ArrayList<String> elems = contactsEvents.get(contactId);
-
-                if (elems == null) {
-                    elems = new ArrayList<>();
-                    contactsEvents.put(contactId, elems);
-                }
-
-                if(!elems.contains(eventId)) elems.add(eventId);
-            }
-        }
-
-        return contactsEvents;
     }
 
 }

@@ -1,5 +1,6 @@
 package com.calendar.app;
 
+import com.calendar.models.Category;
 import com.calendar.models.Contact;
 import com.calendar.models.Event;
 import com.calendar.utils.comparators.ContactByPhoneComparator;
@@ -9,12 +10,14 @@ import com.calendar.utils.helpers.XmlHelperError;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.swing.*;
@@ -27,6 +30,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -45,16 +49,16 @@ public class Main extends Application {
 		stage.show();
 	}
 	
-	public static ArrayList<Contact> contacts = new ArrayList<Contact>();
 	public static ArrayList<Event> events = new ArrayList<Event>();
 	public static ObservableList<Contact> tableContactsList = FXCollections.observableArrayList();
+	public static ObservableList<Category> tableCategoryList = FXCollections.observableArrayList();
 
 	public static String dateFormat = "yyyy-MM-dd HH:mm";
 	public static DateFormat dateFormatter = new SimpleDateFormat(Main.dateFormat);
 
-	public static String contactsPath = "/Users/kurtymd/eclipse-workspace/task2/src/task2/static/contacts.xml";
-	public static String eventsPath = "/Users/kurtymd/eclipse-workspace/task2/src/task2/static/events.xml";
-	public static String contactsEventsPath = "/Users/kurtymd/eclipse-workspace/task2/src/task2/static/contactsEvents.xml";
+	public static String contactsPath = "static/contacts.xml";
+	public static String eventsPath = "static/events.xml";
+	public static String contactsEventsPath = "static/contactsEvents.xml";
 
 	public static void main(String[] args) {
 
@@ -107,91 +111,171 @@ public class Main extends Application {
 //		writeEventsToXML();
 	}
 
-//	static void readContactsXML() throws XmlHelperError {
-//
-//		Document document = XmlHelper.openXmlAsDocument(Main.contactsPath);
-//
-//		NodeList nodeList = document.getElementsByTagName("contact");
-//		Main.contacts.clear();
-//		for (int i = 0; i < nodeList.getLength(); i++) {
-//            Element node = (Element)nodeList.item(i);
-//            String id = node.getAttribute("id");
-//            String name = node.getAttribute("name");
-//            String phoneTxt = node.getAttribute("phone");
-//			long phone = Long.parseLong(phoneTxt);
-//            Contact contact = new Contact(id, name, phone);
-//            Main.contacts.add(contact);
-//		}
-//	}
-
-	static void sortContacts() {
-		Main.contacts.sort(null);
+	public static void readAllData() {
+		try {
+			tableContactsList.clear();
+			tableCategoryList.clear();
+			events.clear();
+			readEventsXML();
+			readContactsXML();
+			Map<String, ArrayList<String>> eventContact = Main.readContactsEvents(true);
+			Map<String, ArrayList<String>> contactEvent = Main.readContactsEvents(false);
+			linkContactsAndEvents(contactEvent, eventContact);
+		} catch (XmlHelperError e) {
+			e.printStackTrace();
+			return;
+		} catch (FileNotFoundException e) {
+			return;
+		}
 	}
 
-	static void sortContactsByComporator(Comparator c) {
-		Collections.sort(Main.contacts, c);
-	}
+	public static void writeContactsToXML() {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder;
 
-//	static void showContatcs() {
-//
-//		System.out.println(Main.contacts.toString());
-//
-//	}
-
-	static void writeEventsToXML() {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder;
 		try {
 			builder = factory.newDocumentBuilder();
-		} catch (ParserConfigurationException e) {
+		} catch(ParserConfigurationException e) {
 			e.printStackTrace();
 			return;
 		}
 
-        Document document = builder.newDocument();
+		Document document = builder.newDocument();
 
-		Element root = document.createElement("events");
-        document.appendChild(root);
+		Element root = document.createElement("contacts");
+		document.appendChild(root);
 
-		Main.events.forEach((event) -> {
-			Element eventDoc = document.createElement("event");
-			eventDoc.setAttribute("id", event.getId());
-			eventDoc.setAttribute("name", event.getName());
-			eventDoc.setAttribute("date", event.getTxtDate());
-			root.appendChild(eventDoc);
+		Main.tableContactsList.forEach((contact) -> {
+			Element contactDoc = document.createElement("contact");
+			contactDoc.setAttribute("id", contact.getId());
+			contactDoc.setAttribute("name", contact.getName());
+			contactDoc.setAttribute("phone", contact.getPhoneString());
+			root.appendChild(contactDoc);
 		});
 
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer;
+		Transformer transformer;
 		try {
 			transformer = transformerFactory.newTransformer();
 		} catch (TransformerConfigurationException e) {
 			e.printStackTrace();
 			return;
 		}
-        DOMSource source = new DOMSource(document);
-
-        StreamResult result = new StreamResult("/Users/kurtymd/eclipse-workspace/task2/src/task2/static/events.xml");
-        try {
+		DOMSource source = new DOMSource(document);
+		StreamResult result = new StreamResult(Main.contactsPath);
+		try {
 			transformer.transform(source, result);
 		} catch (TransformerException e) {
 			e.printStackTrace();
 		}
 	}
 
-	static void readEventsXML() throws Exception {
-        Document document = XmlHelper.openXmlAsDocument(Main.contactsPath);
+	private static void readContactsXML() throws XmlHelperError, FileNotFoundException {
+
+		Document document = XmlHelper.openXmlAsDocument(Main.contactsPath);
+
+		NodeList nodeList = document.getElementsByTagName("contact");
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Element node = (Element)nodeList.item(i);
+			String id = node.getAttribute("id");
+			String name = node.getAttribute("name");
+			String phoneTxt = node.getAttribute("phone");
+			long phone = Long.parseLong(phoneTxt);
+			Contact contact = new Contact(id, name, phone);
+			Main.tableContactsList.add(contact);
+		}
+	}
+
+	public static void writeEventsToXML() {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder;
+
+		try {
+			builder = factory.newDocumentBuilder();
+		} catch(ParserConfigurationException e) {
+			e.printStackTrace();
+			return;
+		}
+
+		Document document = builder.newDocument();
+		Document documentWithEvents = builder.newDocument();
+
+		Element rootWithEvents = documentWithEvents.createElement("contactsEvents");
+		documentWithEvents.appendChild(rootWithEvents);
+
+		Element root = document.createElement("contacts");
+		document.appendChild(root);
+
+		Main.events.forEach((event) -> {
+			Element eventDoc = document.createElement("event");
+			eventDoc.setAttribute("id", event.getId());
+			eventDoc.setAttribute("name", event.getName());
+			eventDoc.setAttribute("date", event.getTxtDate());
+			Category category = event.getCategory();
+			if (category != null) {
+				Element categoryDoc = document.createElement("category");
+				categoryDoc.setAttribute("id", category.getId());
+				categoryDoc.setAttribute("name", category.getName());
+				categoryDoc.setAttribute("hexColor", category.getHexColor());
+				eventDoc.appendChild(categoryDoc);
+			}
+			event.getContacts().forEach((contact) -> {
+				Element contactWithEventDoc = documentWithEvents.createElement("contactEvent");
+				contactWithEventDoc.setAttribute("contactId", contact.getId());
+				contactWithEventDoc.setAttribute("eventId", event.getId());
+				rootWithEvents.appendChild(contactWithEventDoc);
+			});
+			root.appendChild(eventDoc);
+		});
+
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer;
+		try {
+			transformer = transformerFactory.newTransformer();
+		} catch (TransformerConfigurationException e) {
+			e.printStackTrace();
+			return;
+		}
+		DOMSource source = new DOMSource(document);
+		DOMSource sourceWithEvent = new DOMSource(documentWithEvents);
+
+		StreamResult result = new StreamResult(Main.eventsPath);
+		StreamResult resultWithEvent = new StreamResult(Main.contactsEventsPath);
+		try {
+			transformer.transform(source, result);
+			transformer.transform(sourceWithEvent, resultWithEvent);
+		} catch (TransformerException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void readEventsXML() throws XmlHelperError, FileNotFoundException {
+		Document document = XmlHelper.openXmlAsDocument(Main.eventsPath);
 
         NodeList nodeList = document.getElementsByTagName("event");
-		Main.events.clear();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Element node = (Element)nodeList.item(i);
             String id = node.getAttribute("id");
 			String dateTxt = node.getAttribute("date");
 			String name = node.getAttribute("name");
+			Element categoryDoc = (Element)node.getFirstChild();
+			Category category = null;
+			if (categoryDoc != null) {
+				String categoryId = categoryDoc.getAttribute("id");
+				String categoryName = categoryDoc.getAttribute("name");
+				String categoryHexColor = categoryDoc.getAttribute("hexColor");
+				category = tableCategoryList.stream()
+						.filter(x -> x.getId().equals(categoryId))
+						.findFirst()
+						.orElse(null);
+				if (category == null) {
+					category = new Category(categoryId, categoryName, categoryHexColor);
+				}
+			}
 			try {
 				Date date = Main.dateFormatter.parse(dateTxt);
 				Event event = new Event(id, name, date);
+				event.setCategory(category);
 				Main.events.add(event);
 			} catch (ParseException e) {
 				e.printStackTrace();
@@ -208,65 +292,55 @@ public class Main extends Application {
         return null;
     }
 
-//	static void addEvent() {
-//
-//		String name = JOptionPane.showInputDialog("Enter event name: ");
-//		String dateTxt = JOptionPane.showInputDialog("Enter the date: yyyy-MM-dd HH:mm");
-//
-//		Date date;
-//
-//		try {
-//			date = Main.dateFormatter.parse(dateTxt);
-//		} catch (ParseException e) {
-//			System.out.println("Incorrect date format");
-//			return;
-//		}
-//
-//		Event event = new Event(name, date);
-//
-//		Main.events.add(event);
-//	}
-//
-//	static void editEvent(int index) {
-//		Event event;
-//		try {
-//			event = Main.events.get(index);
-//		} catch (IndexOutOfBoundsException e) {
-//			System.out.println("Event is undefined");
-//			return;
-//		}
-//
-//		event.setName(name);
-//		event.setDate(date);
-//	}
+	private static Map<String, ArrayList<String>> readContactsEvents(Boolean reverse) throws XmlHelperError, FileNotFoundException {
+		Map<String, ArrayList<String>> contactsEvents = new Hashtable<String, ArrayList<String>>();
 
-//	static void sortEvents() {
-//		Main.events.sort(null);
-//	}
-//
-//	static void sortEventsByComporator(Comparator c) {
-//		Collections.sort(Main.events, c);
-//	}
-//
-//	public static void showEvents() {
-//
-//		System.out.println(Main.events.toString());
-//
-//	}
-//
-//	private static void linkContactsAndEvents(Map<String, ArrayList<String>> contactToEvents,
-//                                               Map<String, ArrayList<String>> eventToContacts) {
-//        for (Contact contact : contacts) {
-//            ArrayList<String> eventIds = contactToEvents.get(contact.getId());
-//            if (eventIds != null) {
-//                for (String eventId : eventIds) {
-//                    Event event = findEventById(eventId);
-//                    if (event != null) {
-//                        contact.addEvent(event);
-//                        event.addContact(contact);
-//                    }
-//                }
-//            }
-//        }
-//    }
+		Document contactsEventsDoc = XmlHelper.openXmlAsDocument(Main.contactsEventsPath);
+
+		NodeList nodeList = contactsEventsDoc.getElementsByTagName("contactEvent");
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Element node = (Element)nodeList.item(i);
+
+			String eventId = node.getAttribute("eventId");
+			String contactId = node.getAttribute("contactId");
+
+			if (reverse) {
+				ArrayList<String> elems = contactsEvents.get(eventId);
+
+				if (elems == null) {
+					elems = new ArrayList<>();
+					contactsEvents.put(eventId, elems);
+				}
+				if(!elems.contains(contactId)) elems.add(contactId);
+
+			} else {
+				ArrayList<String> elems = contactsEvents.get(contactId);
+
+				if (elems == null) {
+					elems = new ArrayList<>();
+					contactsEvents.put(contactId, elems);
+				}
+
+				if(!elems.contains(eventId)) elems.add(eventId);
+			}
+		}
+
+		return contactsEvents;
+	}
+
+	private static void linkContactsAndEvents(Map<String, ArrayList<String>> contactToEvents,
+                                               Map<String, ArrayList<String>> eventToContacts) {
+        for (Contact contact : tableContactsList) {
+            ArrayList<String> eventIds = contactToEvents.get(contact.getId());
+            if (eventIds != null) {
+                for (String eventId : eventIds) {
+                    Event event = findEventById(eventId);
+                    if (event != null) {
+                        contact.addEvent(event);
+                        event.addContact(contact);
+                    }
+                }
+            }
+        }
+    }
 }

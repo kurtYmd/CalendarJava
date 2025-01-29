@@ -1,6 +1,7 @@
 package com.calendar.models;
 
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ public class Contact implements Comparable<Contact> {
 	private String name;
 	@DatabaseField()
 	private long phone;
+	@ForeignCollectionField(eager = false)
 	private ArrayList<Event> events;
 	@DatabaseField(id = true)
 	private String id;
